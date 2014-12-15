@@ -11,8 +11,10 @@ an abstract state according to one global rule.
 Previous work with CAs feature evolving global rules.  This is the
 first work that I am aware of that evolves the rule locally.
 
-## See also
+## *: See also
 
-- Douglas Hofstadter, "Prologemena to any future Metacat"
+- Douglas Hofstadter, "Prologemena to any future Metacat", in Fluid concepts and creative analogies, pp. 307 - 318, 1995
 
 - Melanie Mitchell, Peter T. Hraber, and James P. Crutchfield. Revisiting the edge of chaos: Evolving cellular automata to perform computations. Complex Systems, 7:89--130, 1993.
+
+- James B. Marshall, Metacat: A Self-Watching Cognitive Architecture for Analogy-Making and High-Level Perception, (PhD thesis) Indiana University, Bloomington 1999.
