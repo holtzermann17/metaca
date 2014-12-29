@@ -29,8 +29,47 @@
 ;; Previous work with CAs feature evolving global rules.  This is the
 ;; first work that I am aware of that evolves the rule locally.
 
-;; Next up: add an abstract "phenotype" on top of or interacting with
-;; the "genotype."
+;; Alternate versions of the functions add an abstract "phenotype" on
+;; top of the "genotype."  One research question of interest is: Can
+;; we define a simple "Baldwin effect" that feeds back from the
+;; phenotype to the genotype and leads to the production of rules with
+;; edge-of-chaos behavior?  This can be seen as a simple analogue to
+;; the cosmological question "How widespread is life in the universe?"
+
+;; An example of a relevant Baldwin effect is:
+
+;; XXX  XXO  XOO  OOO
+;;  X    X    X    X 
+;; ===  ===  ===  ===
+;;  1    2    3    4 
+;;
+;; Condition 1: heavy mutation
+;; Condition 2: medium mutation
+;; Condition 3: low mutation
+;; Condition 4: no mutation
+
+;; When we say "mutation" what do we mean?
+
+;;; Notes:
+
+;; Related things: mirror image, complement, and mirror complement
+
+;; 0000	0
+;; 0001	1
+;; 0010	2
+;; 0011	3
+;; 0100	4
+;; 0101	5
+;; 0110	6
+;; 0111	7
+;; 1000	8
+;; 1001	9
+;; 1010	A
+;; 1011	B
+;; 1100	C
+;; 1101	D
+;; 1110	E
+;; 1111	F
 
 ;;; Code:
 
@@ -50,267 +89,278 @@
 
 (add-hook 'emacs-lisp-mode-hook 'hexcolour-add-to-font-lock)
 
-;;;
+;;; 00011101 11100010 10111000 01000111
+;;; 01101110 01110110 10010001 10001001
+;;; 00011110 11100001 01111000 10000111
+;;; 01011010 10100101
 
-(defvar truth-table-3 '("000" "001" "010" "100" "011" "101" "110" "111"))
+(defvar truth-table-3 '("000" ; 0 1 1 0  0 0 1 1  0 1 0 1  0 1
+			"001" ; 0 1 0 1  1 1 0 0  0 1 1 0  1 0
+			"010" ; 0 1 1 0  1 1 0 0  0 1 1 0  0 1
+			"100" ; 1 0 1 0  0 1 1 0  1 0 1 0  1 0
+			"011" ; 1 0 1 0  1 0 0 1  1 0 1 0  1 0
+			"101" ; 1 0 0 1  1 1 0 0  1 0 0 1  0 1
+			"110" ; 0 1 0 1  1 1 0 0  1 0 0 1  1 0
+			"111" ; 1 0 0 1  0 0 1 1  0 1 0 1  0 1
+			))
 
 (defvar truth-table-8
   '(("00000000" "!" "#000000")
-    ("00000001" "#" "#800000")
-    ("00000010" "$" "#008000")
-    ("00000100" "%" "#808000")
-    ("00000011" "&" "#000080")
-    ("00000101" "[" "#800080")
-    ("00000110" "]" "#008080")
-    ("00000111" "*" "#c0c0c0")
-    ("00001000" "0" "#808080")
-    ("00001001" "1" "#ff0000")
-    ("00001010" "2" "#00ff00")
-    ("00001100" "3" "#ffff00")
-    ("00001011" "4" "#0000ff")
-    ("00001101" "5" "#ff00ff")
-    ("00001110" "6" "#00ffff")
-    ("00001111" "7" "#ffffff")
-    ("00010000" "8" "#000000")
-    ("00010001" "9" "#00005f")
-    ("00010010" "@" "#000087")
-    ("00010100" "A" "#0000af")
-    ("00010011" "B" "#0000d7")
-    ("00010101" "C" "#0000ff")
-    ("00010110" "D" "#005f00")
-    ("00010111" "E" "#005f5f")
-    ("00011000" "F" "#005f87")
-    ("00011001" "G" "#005faf")
-    ("00011010" "H" "#005fd7")
-    ("00011100" "I" "#005fff")
-    ("00011011" "J" "#008700")
-    ("00011101" "K" "#00875f")
-    ("00011110" "L" "#008787")
-    ("00011111" "M" "#0087af")
-    ("00100000" "N" "#0087d7")
-    ("00100001" "O" "#0087ff")
-    ("00100010" "P" "#00af00")
-    ("00100100" "Q" "#00af5f")
-    ("00100011" "R" "#00af87")
-    ("00100101" "S" "#00afaf")
-    ("00100110" "T" "#00afd7")
-    ("00100111" "U" "#00afff")
-    ("00101000" "V" "#00d700")
-    ("00101001" "W" "#00d75f")
-    ("00101010" "X" "#00d787")
-    ("00101100" "Y" "#00d7af")
-    ("00101011" "Z" "#00d7d7")
-    ("00101101" "^" "#00d7ff")
-    ("00101110" "`" "#00ff00")
-    ("00101111" "a" "#00ff5f")
-    ("00110000" "b" "#00ff87")
-    ("00110001" "c" "#00ffaf")
-    ("00110010" "d" "#00ffd7")
-    ("00110100" "e" "#00ffff")
-    ("00110011" "f" "#5f0000")
-    ("00110101" "g" "#5f005f")
-    ("00110110" "h" "#5f0087")
-    ("00110111" "i" "#5f00af")
-    ("00111000" "j" "#5f00d7")
-    ("00111001" "k" "#5f00ff")
-    ("00111010" "l" "#5f5f00")
-    ("00111100" "m" "#5f5f5f")
-    ("00111011" "n" "#5f5f87")
-    ("00111101" "o" "#5f5faf")
-    ("00111110" "p" "#5f5fd7")
-    ("00111111" "q" "#5f5fff")
-    ("01000000" "r" "#5f8700")
-    ("01000001" "s" "#5f875f")
-    ("01000010" "t" "#5f8787")
-    ("01000100" "u" "#5f87af")
-    ("01000011" "v" "#5f87d7")
-    ("01000101" "w" "#5f87ff")
-    ("01000110" "x" "#5faf00")
-    ("01000111" "y" "#5faf5f")
-    ("01001000" "z" "#5faf87")
-    ("01001001" "~" "#5fafaf")
-    ("01001010" " " "#5fafd7")
-    ("01001100" "¡" "#5fafff")
-    ("01001011" "¢" "#5fd700")
-    ("01001101" "£" "#5fd75f")
-    ("01001110" "¤" "#5fd787")
-    ("01001111" "¥" "#5fd7af")
-    ("01010000" "¦" "#5fd7d7")
-    ("01010001" "§" "#5fd7ff")
-    ("01010010" "¨" "#5fff00")
-    ("01010100" "©" "#5fff5f")
-    ("01010011" "ª" "#5fff87")
-    ("01010101" "«" "#5fffaf")
-    ("01010110" "¬" "#5fffd7")
-    ("01010111" "­" "#5fffff")
-    ("01011000" "®" "#870000")
-    ("01011001" "¯" "#87005f")
-    ("01011010" "°" "#870087")
-    ("01011100" "±" "#8700af")
-    ("01011011" "²" "#8700d7")
-    ("01011101" "³" "#8700ff")
-    ("01011110" "´" "#875f00")
-    ("01011111" "µ" "#875f5f")
-    ("01100000" "¶" "#875f87")
-    ("01100001" "·" "#875faf")
-    ("01100010" "¹" "#875fd7")
-    ("01100100" "º" "#875fff")
-    ("01100011" "»" "#878700")
-    ("01100101" "¼" "#87875f")
-    ("01100110" "½" "#878787")
-    ("01100111" "¾" "#8787af")
-    ("01101000" "¿" "#8787d7")
-    ("01101001" "À" "#8787ff")
-    ("01101010" "Á" "#87af00")
-    ("01101100" "Â" "#87af5f")
-    ("01101011" "Ã" "#87af87")
-    ("01101101" "Ä" "#87afaf")
-    ("01101110" "Å" "#87afd7")
-    ("01101111" "Æ" "#87afff")
-    ("01110000" "Ç" "#87d700")
-    ("01110001" "È" "#87d75f")
-    ("01110010" "É" "#87d787")
-    ("01110100" "Ê" "#87d7af")
-    ("01110011" "Ë" "#87d7d7")
-    ("01110101" "Ì" "#87d7ff")
-    ("01110110" "Í" "#87ff00")
-    ("01110111" "Î" "#87ff5f")
-    ("01111000" "Ï" "#87ff87")
-    ("01111001" "Ð" "#87ffaf")
-    ("01111010" "Ñ" "#87ffd7")
-    ("01111100" "Ò" "#87ffff")
-    ("01111011" "Ó" "#af0000")
-    ("01111101" "Ô" "#af005f")
-    ("01111110" "Õ" "#af0087")
-    ("01111111" "Ö" "#af00af")
-    ("10000000" "×" "#af00d7")
-    ("10000001" "Ø" "#af00ff")
-    ("10000010" "Ù" "#af5f00")
-    ("10000100" "Ú" "#af5f5f")
-    ("10000011" "Û" "#af5f87")
-    ("10000101" "Ü" "#af5faf")
-    ("10000110" "Ý" "#af5fd7")
-    ("10000111" "Þ" "#af5fff")
-    ("10001000" "ß" "#af8700")
-    ("10001001" "à" "#af875f")
-    ("10001010" "á" "#af8787")
-    ("10001100" "â" "#af87af")
-    ("10001011" "ã" "#af87d7")
-    ("10001101" "ä" "#af87ff")
-    ("10001110" "å" "#afaf00")
-    ("10001111" "æ" "#afaf5f")
-    ("10010000" "ç" "#afaf87")
-    ("10010001" "è" "#afafaf")
-    ("10010010" "é" "#afafd7")
-    ("10010100" "ê" "#afafff")
-    ("10010011" "ë" "#afd700")
-    ("10010101" "ì" "#afd75f")
-    ("10010110" "í" "#afd787")
-    ("10010111" "î" "#afd7af")
-    ("10011000" "ï" "#afd7d7")
-    ("10011001" "ð" "#afd7ff")
-    ("10011010" "ñ" "#afff00")
-    ("10011100" "ò" "#afff5f")
-    ("10011011" "ó" "#afff87")
-    ("10011101" "ô" "#afffaf")
-    ("10011110" "õ" "#afffd7")
-    ("10011111" "ö" "#afffff")
-    ("10100000" "÷" "#d70000")
-    ("10100001" "ø" "#d7005f")
-    ("10100010" "ù" "#d70087")
-    ("10100100" "ú" "#d700af")
-    ("10100011" "û" "#d700d7")
-    ("10100101" "ü" "#d700ff")
-    ("10100110" "ý" "#d75f00")
-    ("10100111" "þ" "#d75f5f")
-    ("10101000" "ÿ" "#d75f87")
-    ("10101001" "ā" "#d75faf")
-    ("10101010" "Ă" "#d75fd7")
-    ("10101100" "Ą" "#d75fff")
-    ("10101011" "Ć" "#d78700")
-    ("10101101" "Č" "#d7875f")
-    ("10101110" "Ď" "#d78787")
-    ("10101111" "Đ" "#d787af")
-    ("10110000" "Ę" "#d787d7")
-    ("10110001" "Ě" "#d787ff")
-    ("10110010" "ī" "#d7af00")
-    ("10110100" "Ĺ" "#d7af5f")
-    ("10110011" "Ľ" "#d7af87")
-    ("10110101" "Ł" "#d7afaf")
-    ("10110110" "Ń" "#d7afd7")
-    ("10110111" "ņ" "#d7afff")
-    ("10111000" "Ň" "#d7d700")
-    ("10111001" "Ő" "#d7d75f")
-    ("10111010" "Œ" "#d7d787")
-    ("10111100" "Ŕ" "#d7d7af")
-    ("10111011" "Ř" "#d7d7d7")
-    ("10111101" "Ś" "#d7d7ff")
-    ("10111110" "Ş" "#d7ff00")
-    ("10111111" "Š" "#d7ff5f")
-    ("11000000" "Ţ" "#d7ff87")
-    ("11000001" "Ť" "#d7ffaf")
-    ("11000010" "Ů" "#d7ffd7")
-    ("11000100" "Ű" "#d7ffff")
-    ("11000011" "Ÿ" "#ff0000")
-    ("11000101" "Ź" "#ff005f")
-    ("11000110" "Ż" "#ff0087")
-    ("11000111" "Ž" "#ff00af")
-    ("11001000" "Α" "#ff00d7")
-    ("11001001" "Β" "#ff00ff")
-    ("11001010" "Γ" "#ff5f00")
-    ("11001100" "Δ" "#ff5f5f")
-    ("11001011" "Ε" "#ff5f87")
-    ("11001101" "Ζ" "#ff5faf")
-    ("11001110" "Η" "#ff5fd7")
-    ("11001111" "Θ" "#ff5fff")
-    ("11010000" "Ι" "#ff8700")
-    ("11010001" "Κ" "#ff875f")
-    ("11010010" "Λ" "#ff8787")
-    ("11010100" "Μ" "#ff87af")
-    ("11010011" "Ν" "#ff87d7")
-    ("11010101" "Ξ" "#ff87ff")
-    ("11010110" "Ο" "#ffaf00")
-    ("11010111" "Π" "#ffaf5f")
-    ("11011000" "Ρ" "#ffaf87")
-    ("11011001" "Σ" "#ffafaf")
-    ("11011010" "Τ" "#ffafd7")
-    ("11011100" "Υ" "#ffafff")
-    ("11011011" "Φ" "#ffd700")
-    ("11011101" "Χ" "#ffd75f")
-    ("11011110" "Ψ" "#ffd787")
-    ("11011111" "Ω" "#ffd7af")
-    ("11100000" "α" "#ffd7d7")
-    ("11100001" "β" "#ffd7ff")
-    ("11100010" "γ" "#ffff00")
-    ("11100100" "δ" "#ffff5f")
-    ("11100011" "ε" "#ffff87")
-    ("11100101" "ζ" "#ffffaf")
-    ("11100110" "η" "#ffffd7")
-    ("11100111" "θ" "#ffffff")
-    ("11101000" "ι" "#080808")
-    ("11101001" "κ" "#121212")
-    ("11101010" "λ" "#1c1c1c")
-    ("11101100" "μ" "#262626")
-    ("11101011" "ν" "#303030")
-    ("11101101" "ξ" "#3a3a3a")
-    ("11101110" "ο" "#444444")
-    ("11101111" "π" "#4e4e4e")
-    ("11110000" "ρ" "#585858")
-    ("11110001" "σ" "#606060")
-    ("11110010" "τ" "#666666")
-    ("11110100" "υ" "#767676")
-    ("11110011" "φ" "#808080")
-    ("11110101" "χ" "#8a8a8a")
-    ("11110110" "ψ" "#949494")
-    ("11110111" "ω" "#9e9e9e")
-    ("11111000" "☀" "#a8a8a8")
-    ("11111001" "☈" "#b2b2b2")
-    ("11111010" "☉" "#bcbcbc")
-    ("11111100" "☼" "#c6c6c6")
-    ("11111011" "☽" "#d0d0d0")
-    ("11111101" "☾" "#dadada")
-    ("11111110" "☿" "#e4e4e4")
-    ("11111111" "♀" "#eeeeee")))
+    ("00000001" "#" "#010101")
+    ("00000010" "$" "#020202")
+    ("00000100" "%" "#040404")
+    ("00000011" "&" "#030303")
+    ("00000101" "[" "#050505")
+    ("00000110" "]" "#060606")
+    ("00000111" "*" "#070707")
+    ("00001000" "0" "#080808")
+    ("00001001" "1" "#090909")
+    ("00001010" "2" "#0a0a0a")
+    ("00001100" "3" "#0c0c0c")
+    ("00001011" "4" "#0b0b0b")
+    ("00001101" "5" "#0d0d0d")
+    ("00001110" "6" "#0e0e0e")
+    ("00001111" "7" "#0f0f0f")
+    ("00010000" "8" "#101010")
+    ("00010001" "9" "#111111")
+    ("00010010" "@" "#121212")
+    ("00010100" "A" "#141414")
+    ("00010011" "B" "#131313")
+    ("00010101" "C" "#151515")
+    ("00010110" "D" "#161616")
+    ("00010111" "E" "#171717")
+    ("00011000" "F" "#181818")
+    ("00011001" "G" "#191919")
+    ("00011010" "H" "#1a1a1a")
+    ("00011100" "I" "#1c1c1c")
+    ("00011011" "J" "#1b1b1b")
+    ("00011101" "K" "#00ff33") ; #1d1d1d 00011101 11100010 10111000 01000111
+    ("00011110" "L" "#0033ff") ; #1e1e1e 00011110 11100001 01111000 10000111
+    ("00011111" "M" "#1f1f1f")
+    ("00100000" "N" "#202020")
+    ("00100001" "O" "#212121")
+    ("00100010" "P" "#222222")
+    ("00100100" "Q" "#242424")
+    ("00100011" "R" "#232323")
+    ("00100101" "S" "#252525")
+    ("00100110" "T" "#262626")
+    ("00100111" "U" "#272727")
+    ("00101000" "V" "#282828")
+    ("00101001" "W" "#292929")
+    ("00101010" "X" "#2a2a2a")
+    ("00101100" "Y" "#2c2c2c")
+    ("00101011" "Z" "#2b2b2b")
+    ("00101101" "^" "#2d2d2d")
+    ("00101110" "`" "#2e2e2e")
+    ("00101111" "a" "#2f2f2f")
+    ("00110000" "b" "#303030")
+    ("00110001" "c" "#313131")
+    ("00110010" "d" "#323232")
+    ("00110100" "e" "#343434")
+    ("00110011" "f" "#333333")
+    ("00110101" "g" "#353535")
+    ("00110110" "h" "#363636")
+    ("00110111" "i" "#373737")
+    ("00111000" "j" "#383838")
+    ("00111001" "k" "#393939")
+    ("00111010" "l" "#3a3a3a")
+    ("00111100" "m" "#3c3c3c")
+    ("00111011" "n" "#3b3b3b")
+    ("00111101" "o" "#3d3d3d")
+    ("00111110" "p" "#3e3e3e")
+    ("00111111" "q" "#3f3f3f")
+    ("01000000" "r" "#404040")
+    ("01000001" "s" "#414141")
+    ("01000010" "t" "#424242")
+    ("01000100" "u" "#444444")
+    ("01000011" "v" "#434343")
+    ("01000101" "w" "#454545")
+    ("01000110" "x" "#464646")
+    ("01000111" "y" "#00ff33") ;#474747
+    ("01001000" "z" "#484848")
+    ("01001001" "~" "#494949")
+    ("01001010" " " "#4a4a4a")
+    ("01001100" "¡" "#4c4c4c")
+    ("01001011" "¢" "#4b4b4b")
+    ("01001101" "£" "#4d4d4d")
+    ("01001110" "¤" "#4e4e4e")
+    ("01001111" "¥" "#4f4f4f")
+    ("01010000" "¦" "#505050")
+    ("01010001" "§" "#515151")
+    ("01010010" "¨" "#525252")
+    ("01010100" "©" "#545454")
+    ("01010011" "ª" "#535353")
+    ("01010101" "«" "#555555")
+    ("01010110" "¬" "#565656")
+    ("01010111" "­" "#575757")
+    ("01011000" "®" "#585858")
+    ("01011001" "¯" "#595959")
+    ("01011010" "°" "#ffcc00") ; #5a5a5a 01011010 10100101
+    ("01011100" "±" "#5c5c5c")
+    ("01011011" "²" "#5b5b5b")
+    ("01011101" "³" "#5d5d5d")
+    ("01011110" "´" "#5e5e5e")
+    ("01011111" "µ" "#5f5f5f")
+    ("01100000" "¶" "#606060")
+    ("01100001" "·" "#616161")
+    ("01100010" "¹" "#626262")
+    ("01100100" "º" "#646464")
+    ("01100011" "»" "#636363")
+    ("01100101" "¼" "#656565")
+    ("01100110" "½" "#666666")
+    ("01100111" "¾" "#676767")
+    ("01101000" "¿" "#686868")
+    ("01101001" "À" "#696969")
+    ("01101010" "Á" "#6a6a6a")
+    ("01101100" "Â" "#6c6c6c")
+    ("01101011" "Ã" "#6b6b6b")
+    ("01101101" "Ä" "#6d6d6d")
+    ("01101110" "Å" "#ff3300") ; #6e6e6e 01101110 01110110 10010001 10001001
+    ("01101111" "Æ" "#6f6f6f")
+    ("01110000" "Ç" "#707070")
+    ("01110001" "È" "#717171")
+    ("01110010" "É" "#727272")
+    ("01110100" "Ê" "#747474")
+    ("01110011" "Ë" "#737373")
+    ("01110101" "Ì" "#757575")
+    ("01110110" "Í" "#ff3300") ; #767676
+    ("01110111" "Î" "#777777")
+    ("01111000" "Ï" "#0033ff") ;#787878
+    ("01111001" "Ð" "#797979")
+    ("01111010" "Ñ" "#7a7a7a")
+    ("01111100" "Ò" "#7c7c7c")
+    ("01111011" "Ó" "#7b7b7b")
+    ("01111101" "Ô" "#7d7d7d")
+    ("01111110" "Õ" "#7e7e7e")
+    ("01111111" "Ö" "#7f7f7f")
+    ("10000000" "×" "#808080")
+    ("10000001" "Ø" "#818181")
+    ("10000010" "Ù" "#828282")
+    ("10000100" "Ú" "#848484")
+    ("10000011" "Û" "#838383")
+    ("10000101" "Ü" "#858585")
+    ("10000110" "Ý" "#868686")
+    ("10000111" "Þ" "#0033ff") ;#878787
+    ("10001000" "ß" "#888888")
+    ("10001001" "à" "#ff3300") ;#898989
+    ("10001010" "á" "#8a8a8a")
+    ("10001100" "â" "#8c8c8c")
+    ("10001011" "ã" "#8b8b8b")
+    ("10001101" "ä" "#8d8d8d")
+    ("10001110" "å" "#8e8e8e")
+    ("10001111" "æ" "#8f8f8f")
+    ("10010000" "ç" "#909090")
+    ("10010001" "è" "#ff3300") ;#919191
+    ("10010010" "é" "#929292")
+    ("10010100" "ê" "#949494")
+    ("10010011" "ë" "#939393")
+    ("10010101" "ì" "#959595")
+    ("10010110" "í" "#969696")
+    ("10010111" "î" "#979797")
+    ("10011000" "ï" "#989898")
+    ("10011001" "ð" "#999999")
+    ("10011010" "ñ" "#9a9a9a")
+    ("10011100" "ò" "#9c9c9c")
+    ("10011011" "ó" "#9b9b9b")
+    ("10011101" "ô" "#9d9d9d")
+    ("10011110" "õ" "#9e9e9e")
+    ("10011111" "ö" "#9f9f9f")
+    ("10100000" "÷" "#a0a0a0")
+    ("10100001" "ø" "#a1a1a1")
+    ("10100010" "ù" "#a2a2a2")
+    ("10100100" "ú" "#a4a4a4")
+    ("10100011" "û" "#a3a3a3")
+    ("10100101" "ü" "#ffcc00")  ;#a5a5a5
+    ("10100110" "ý" "#a6a6a6")
+    ("10100111" "þ" "#a7a7a7")
+    ("10101000" "ÿ" "#a8a8a8")
+    ("10101001" "ā" "#a9a9a9")
+    ("10101010" "Ă" "#aaaaaa")
+    ("10101100" "Ą" "#acacac")
+    ("10101011" "Ć" "#ababab")
+    ("10101101" "Č" "#adadad")
+    ("10101110" "Ď" "#aeaeae")
+    ("10101111" "Đ" "#afafaf")
+    ("10110000" "Ę" "#b0b0b0")
+    ("10110001" "Ě" "#b1b1b1")
+    ("10110010" "ī" "#b2b2b2")
+    ("10110100" "Ĺ" "#b4b4b4")
+    ("10110011" "Ľ" "#b3b3b3")
+    ("10110101" "Ł" "#b5b5b5")
+    ("10110110" "Ń" "#b6b6b6")
+    ("10110111" "ņ" "#b7b7b7")
+    ("10111000" "Ň" "#00ff33") ;#b8b8b8
+    ("10111001" "Ő" "#b9b9b9")
+    ("10111010" "Œ" "#bababa")
+    ("10111100" "Ŕ" "#bcbcbc")
+    ("10111011" "Ř" "#bbbbbb")
+    ("10111101" "Ś" "#bdbdbd")
+    ("10111110" "Ş" "#bebebe")
+    ("10111111" "Š" "#bfbfbf")
+    ("11000000" "Ţ" "#c0c0c0")
+    ("11000001" "Ť" "#c1c1c1")
+    ("11000010" "Ů" "#c2c2c2")
+    ("11000100" "Ű" "#c4c4c4")
+    ("11000011" "Ÿ" "#c3c3c3")
+    ("11000101" "Ź" "#c5c5c5")
+    ("11000110" "Ż" "#c6c6c6")
+    ("11000111" "Ž" "#c7c7c7")
+    ("11001000" "Α" "#c8c8c8")
+    ("11001001" "Β" "#c9c9c9")
+    ("11001010" "Γ" "#cacaca")
+    ("11001100" "Δ" "#cccccc")
+    ("11001011" "Ε" "#cbcbcb")
+    ("11001101" "Ζ" "#cdcdcd")
+    ("11001110" "Η" "#cecece")
+    ("11001111" "Θ" "#cfcfcf")
+    ("11010000" "Ι" "#d0d0d0")
+    ("11010001" "Κ" "#d1d1d1")
+    ("11010010" "Λ" "#d2d2d2")
+    ("11010100" "Μ" "#d4d4d4")
+    ("11010011" "Ν" "#d3d3d3")
+    ("11010101" "Ξ" "#d5d5d5")
+    ("11010110" "Ο" "#d6d6d6")
+    ("11010111" "Π" "#d7d7d7")
+    ("11011000" "Ρ" "#d8d8d8")
+    ("11011001" "Σ" "#d9d9d9")
+    ("11011010" "Τ" "#dadada")
+    ("11011100" "Υ" "#dcdcdc")
+    ("11011011" "Φ" "#dbdbdb")
+    ("11011101" "Χ" "#dddddd")
+    ("11011110" "Ψ" "#dedede")
+    ("11011111" "Ω" "#dfdfdf")
+    ("11100000" "α" "#e0e0e0")
+    ("11100001" "β" "#0033ff") ;#e1e1e1
+    ("11100010" "γ" "#00ff33") ;#e2e2e2
+    ("11100100" "δ" "#e4e4e4")
+    ("11100011" "ε" "#e3e3e3")
+    ("11100101" "ζ" "#e5e5e5")
+    ("11100110" "η" "#e6e6e6")
+    ("11100111" "θ" "#e7e7e7") 
+    ("11101000" "ι" "#e8e8e8")
+    ("11101001" "κ" "#e9e9e9")
+    ("11101010" "λ" "#eaeaea")
+    ("11101100" "μ" "#ececec")
+    ("11101011" "ν" "#ebebeb")
+    ("11101101" "ξ" "#ededed")
+    ("11101110" "ο" "#eeeeee")
+    ("11101111" "π" "#efefef")
+    ("11110000" "ρ" "#f0f0f0")
+    ("11110001" "σ" "#f1f1f1")
+    ("11110010" "τ" "#f2f2f2")
+    ("11110100" "υ" "#f4f4f4")
+    ("11110011" "φ" "#f3f3f3")
+    ("11110101" "χ" "#f5f5f5")
+    ("11110110" "ψ" "#f6f6f6")
+    ("11110111" "ω" "#f7f7f7")
+    ("11111000" "☀" "#f8f8f8")
+    ("11111001" "☈" "#f9f9f9")
+    ("11111010" "☉" "#fafafa")
+    ("11111100" "☼" "#fcfcfc")
+    ("11111011" "☽" "#fbfbfb")
+    ("11111101" "☾" "#fdfdfd")
+    ("11111110" "☿" "#fefefe")
+    ("11111111" "♀" "#ffffff")))
 
 (defun random-sigil ()
   (second (nth (random 256) truth-table-8)))
@@ -318,6 +368,11 @@
 (defun random-sigil-string (len)
   (let ((res ""))
     (dotimes (i len) (setq res (concat res (random-sigil))))
+    res))
+
+(defun random-phenotype-string (len)
+  (let ((res ""))
+    (dotimes (i len) (setq res (concat res (int-to-string (random 2)))))
     res))
 
 (defun get-genotype-from-sigil (sig)
@@ -329,7 +384,12 @@
 (defun get-sigil-from-rule (rule)
   (second (car (member-if (lambda (elt) (string= (first elt) rule)) truth-table-8))))
 
-(defun evolve-sigil (sig &optional pred next)
+(defun get-rule-from-sigil (sigil)
+  (first (car (member-if (lambda (elt) (string= (second elt) sigil)) truth-table-8))))
+
+; (get-rule-from-sigil "#")
+
+(defun evolve-sigil (sig &optional pred next ignore)
   (let* ((p (if pred (first (get-genotype-from-sigil pred))
 	      (first (get-genotype-from-sigil "!"))))
 	 (s (first (get-genotype-from-sigil sig)))
@@ -353,7 +413,7 @@
 
 ; (evolve-sigil "«" "Å" "«") ;=> ("01101110" "Å" "#87afd7")
 
-(defun evolve-sigil-with-blending (sig &optional pred next)
+(defun evolve-sigil-with-blending (sig &optional pred next ignore)
   (let* ((p (if pred (first (get-genotype-from-sigil pred))
 	      (first (get-genotype-from-sigil "!"))))
 	 (s (first (get-genotype-from-sigil sig)))
@@ -385,21 +445,210 @@
 	       local-data))
     (get-genotype-from-rule output))) 
 
-;; Here's a test case to prove that the results of the two operations
-;; are different:
+;; Here's a test case to show how the results of the two operations
+;; can differ:
 
 ; (get-sigil-from-rule "01010100") "©"
 ; (get-sigil-from-rule "01101110") "Å"
 ; (get-sigil-from-rule "01010101") "«"
 
-; (evolve-sigil "©" "Å" "«") ;=> ("00101011" "Z" "#00d7d7")
+;; (evolve-sigil "©" "Å" "«") ;=> ("00101011" "Z" "#00d7d7")
 
-; (evolve-sigil-with-blending "©" "Å" "«");=> ("01101111" "Æ" "#87afff")
+;; (evolve-sigil-with-blending "©" "Å" "«");=> ("01101111" "Æ" "#87afff")
 
+(defun evolve-sigil-with-blending-3 (sig &optional pred next ignore)
+  "A more choosy version of `evolve-sigil-with-blending'."
+  (let* ((p (if pred (first (get-genotype-from-sigil pred))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s (first (get-genotype-from-sigil sig)))
+	 (n (if next (first (get-genotype-from-sigil next))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s-ints (map 'list (lambda (a) (string-to-int (char-to-string a))) s))
+	 (local-rule (mapcar* #'list truth-table-3 s-ints))
+	 (local-data (map 'list (lambda (a b c) (concat (char-to-string a)
+							(char-to-string b)
+							(char-to-string c)))
+			  p s n))
+	 (output ""))
+    ;; combine the results...
+    (mapc (lambda (num) (setq output (concat output (int-to-string num))))
+	  ;; of first looking at blends and then defaulting to looking
+	  ;; up each element of the local data according to the local rule
+	  (map 'list (lambda (data)
+		       (cond 
+			((and (string= (substring data 0 1) "0")
+			      (string= (substring data 1 2) "0")
+			      (string= (substring data 2 3) "0"))
+			 0)
+			((and (string= (substring data 0 1) "1")
+			      (string= (substring data 2 3) "1")
+			      (string= (substring data 2 3) "1"))
+			 1)
+			(t
+			 (second (car (member-if (lambda (elt)
+						   (string= (first elt) data))
+						 local-rule))))))
+	       local-data))
+    (get-genotype-from-rule output)))
 
-(defalias 'evolve-sigil-fn 'evolve-sigil-with-blending)
+(defun evolve-sigil-with-blending-flip (sig &optional pred next flip)
+  (let* ((p (if pred (first (get-genotype-from-sigil pred))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s (first (get-genotype-from-sigil sig)))
+	 (n (if next (first (get-genotype-from-sigil next))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s-ints (map 'list (lambda (a) (string-to-int (char-to-string a))) s))
+	 (local-rule (mapcar* #'list truth-table-3 s-ints))
+	 (local-data (map 'list (lambda (a b c) (concat (char-to-string a)
+							(char-to-string b)
+							(char-to-string c)))
+			  p s n))
+	 (output ""))
+    ;; combine the results...
+    (mapc (lambda (num) (setq output (concat output (int-to-string num))))
+	  ;; of first looking at blends and then defaulting to looking
+	  ;; up each element of the local data according to the local rule
+	  ;; ... conditionally flipping the locally-determined elements elements
+	  (map 'list (lambda (data)
+		       (cond 
+			((and (string= (substring data 0 1) "0")
+			      (string= (substring data 2 3) "0"))
+			 (if flip 1 0))
+			((and (string= (substring data 0 1) "1")
+			      (string= (substring data 2 3) "1"))
+			 (if flip 0 1))
+			(t
+			 (second (car (member-if (lambda (elt)
+						   (string= (first elt) data))
+						 local-rule))))))
+	       local-data))
+    (get-genotype-from-rule output)))
 
-(defun evolve-string (str)
+(defun mutate-genotype-n (genotype n)  
+  (dotimes (j n)
+    (let* ((pos (random 8))
+	   (elt (substring genotype pos (1+ pos))))
+      (cond
+       ((string= elt "0")
+	(setq genotype (with-temp-buffer (insert genotype)
+				       (goto-char pos)
+				       (delete-char 1)
+				       (insert "1")
+				       (buffer-substring-no-properties (point-min)
+								       (point-max))))
+	
+	)
+       (t
+	(setq genotype (with-temp-buffer (insert genotype)
+				       (goto-char pos)
+				       (delete-char 1)
+				       (insert "0")
+				       (buffer-substring-no-properties (point-min)
+								       (point-max))))
+	))))
+  genotype)
+
+(defun evolve-sigil-with-blending-mutation (sig &optional pred next ignore)
+  (let* ((mutation 2)
+	 (p (if pred (first (get-genotype-from-sigil pred))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s (first (get-genotype-from-sigil sig)))
+	 (n (if next (first (get-genotype-from-sigil next))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s-ints (map 'list (lambda (a) (string-to-int (char-to-string a))) s))
+	 (local-rule (mapcar* #'list truth-table-3 s-ints))
+	 (local-data (map 'list (lambda (a b c) (concat (char-to-string a)
+							(char-to-string b)
+							(char-to-string c)))
+			  p s n))
+	 (output ""))
+    ;; combine the results...
+    (mapc (lambda (num) (setq output (concat output (int-to-string num))))
+	  ;; of first looking at blends and then defaulting to looking
+	  ;; up each element of the local data according to the local rule
+	  (map 'list (lambda (data)
+		       (cond 
+			((and (string= (substring data 0 1) "0")
+			      (string= (substring data 2 3) "0"))
+			 0)
+			((and (string= (substring data 0 1) "1")
+			      (string= (substring data 2 3) "1"))
+			 1)
+			(t
+			 (second (car (member-if (lambda (elt)
+						   (string= (first elt) data))
+						 local-rule))))))
+	       local-data))
+    ;; mutate the output in *mutation* places and return
+    (get-genotype-from-rule (mutate-genotype-n output mutation))))
+
+;; (evolve-sigil-with-blending-mutation "©" "Å" "«" 0) => ("01101111" "Æ" "#6f6f6f")
+;; (evolve-sigil-with-blending-mutation "©" "Å" "«" 1) => ("01101111" "Æ" "#6f6f6f")
+;; (evolve-sigil-with-blending-mutation "©" "Å" "«" 2) => ("01101011" "Ã" "#6b6b6b")
+;; (evolve-sigil-with-blending-mutation "©" "Å" "«" 3) => ("01110101" "Ì" "#757575")
+
+(defun evolve-sigil-with-blending-baldwin (sig &optional pred next context)
+  (let* ((p (if pred (first (get-genotype-from-sigil pred))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s (first (get-genotype-from-sigil sig)))
+	 (n (if next (first (get-genotype-from-sigil next))
+	      (first (get-genotype-from-sigil "!"))))
+	 (s-ints (map 'list (lambda (a) (string-to-int (char-to-string a))) s))
+	 (local-rule (mapcar* #'list truth-table-3 s-ints))
+	 (local-data (map 'list (lambda (a b c) (concat (char-to-string a)
+							(char-to-string b)
+							(char-to-string c)))
+			  p s n))
+	 (output ""))
+    ;; combine the results...
+    (mapc (lambda (num) (setq output (concat output (int-to-string num))))
+	  ;; of first looking at blends and then defaulting to looking
+	  ;; up each element of the local data according to the local rule
+	  (map 'list (lambda (data)
+		       (cond 
+			((and (string= (substring data 0 1) "0")
+			      (string= (substring data 2 3) "0"))
+			 0)
+			((and (string= (substring data 0 1) "1")
+			      (string= (substring data 2 3) "1"))
+			 1)
+			(t
+			 (second (car (member-if (lambda (elt)
+						   (string= (first elt) data))
+						 local-rule))))))
+	       local-data))
+    ;; Count the number of times the old context matches the new
+    ;; state, and then mutate output that many times, then return.
+    ;; Note, it could be interesting to create a variant that would
+    ;; only mutate the contextually underdetermined "alleles",
+    ;; combining this step with what we have above.
+    (if context
+	(let ((mutations 0)
+	      (to-match (car (last context))))
+	  (map 'list (lambda (elt)
+		       (when (eq elt to-match)
+			 (setq mutations (1+ mutations))))
+	       (nbutlast context))
+	  (get-genotype-from-rule (mutate-genotype-n output (1- mutations))))
+      (get-genotype-from-rule output))))
+
+;; (evolve-sigil-with-blending-baldwin "n" "Æ" "Ö")
+
+(defalias 'evolve-sigil-fn 'evolve-sigil-with-blending-baldwin
+  "A function symbol that determines how to evolve a sigil.
+Typical arguments are SIG, PRED, and NEXT, which specify the
+sigil and its predecessor and successor.  The function takes a
+fourth argument which is typically ignored, but which some
+variants of the function use to do interesting things.  For
+example, `evolve-sigil-with-blending-baldwin' takes a quadruple
+specifying the phenotypic context as 3 old values and the new
+state.")
+
+; (evolve-sigil-fn "n" "Æ" "Ö")
+
+(defun evolve-sigil-string (str &optional landscape)
+  "Evolve sigil string STR, optionally subject to an effect determined by LANDSCAPE.
+The exact nature of the effect is determined by passing data to `evolve-sigil-fn'."
   (let* ((letters (map 'list #'char-to-string (string-to-list str)))
 	 (head (evolve-sigil-fn (first letters)
 			     "!"
@@ -407,21 +656,152 @@
 	 (tail (evolve-sigil-fn (car (last letters))
 			     (or (nth (- (length letters) 2) letters)
 				 "!")
-			     "!")))
+			     "!"))
+	 (landscape (if landscape (string-to-list landscape)
+		      (let (empty-landscape)
+			(dotimes (j (length str))
+			  (setq empty-landscape (cons nil empty-landscape)))
+			empty-landscape))))
     (concat (second head)
-	   (map 'string (lambda (mid pred next) 
-			  (string-to-char (second (evolve-sigil-fn mid pred next))))
-		(butlast (cdr letters) 1)
-		(butlast letters 2)
-		(cddr letters))
+	    (map 'string
+		 (lambda (mid pred next data)
+		   (string-to-char (second (evolve-sigil-fn mid pred next data))))
+		 (butlast (cdr letters) 1)
+		 (butlast letters 2)
+		 (cddr letters)
+		 (butlast (cdr landscape) 1))
+	    (second tail))))
+
+(defun evolve-sigil-string-contextually (str &optional old-landscape new-landscape)
+  "`evolve-sigil-string' variant with context of OLD-LANDSCAPE and NEW-LANDSCAPE.
+Context is refined into quadruples with 3 old cells followed by 1
+new status.  The exact nature of the effect of context is
+determined by passing data to `evolve-sigil-fn'.  Only some
+`evolve-sigil-fn' variants are prepared to process the context
+intelligently, see its definition for more information."
+  (let* ((letters (map 'list #'char-to-string (string-to-list str)))
+	 (head (evolve-sigil-fn (first letters)
+			     "!"
+			     (or (second letters) "!")))
+	 (tail (evolve-sigil-fn (car (last letters))
+			     (or (nth (- (length letters) 2) letters)
+				 "!")
+			     "!"))
+	 ;; TODO: The boundary conditions for the landscape need to be set to 0, 0
+	 (landscape (if old-landscape (nconc
+				       (cons 0 (string-to-list old-landscape))
+				       (list 0))
+		      (let (empty-landscape)
+			(dotimes (j (length str))
+			  (setq empty-landscape (cons nil empty-landscape)))
+			empty-landscape)))
+	 (landscape-triples (map 'list
+				 (lambda (beg mid end) (list beg mid end))
+				 (butlast landscape 2)
+				 (butlast (cdr landscape) 1)
+				 (cddr landscape)))
+	 (landscape-quadruples (map 'list
+				    (lambda (triple next) (nconc triple (list next)))
+				    landscape-triples
+				    (nconc
+				       (cons 0 (string-to-list new-landscape))
+				       (list 0))
+				    )))
+    (concat (second head)
+	    (map 'string
+		 (lambda (mid pred next data)
+		   (string-to-char (second (evolve-sigil-fn mid pred next data))))
+		 (butlast (cdr letters) 1)
+		 (butlast letters 2)
+		 (cddr letters)
+		 landscape-quadruples)
 	   (second tail))))
 
-; (evolve-string "nÆÖxιÇfèŮ´Ů8ýÕê☽§¨ïÂ©8µ1γ¬Nõτaú☽jUôβαùèó")
+;; (evolve-sigil-string-contextually "nÆÖxιÇ" "101010" "111000")
+;; (evolve-sigil-string-contextually "!#$%&" "00000")
 
-(defun run-for-generations (str n)
-  (let ((gens (list str)))
-    (dotimes (j n) (setq gens (nconc gens (list (evolve-string (car (last gens)))))))
+(defun evolve-digits-by-rule (first-digit second-digit third-digit rule)
+  "Look up the triple [FIRST-DIGIT SECOND-DIGIT THIRD-DIGIT] in look-up table RULE."
+  (let ((triple (apply #'concat
+		       (map 'list #'int-to-string
+			    (list first-digit second-digit third-digit)))))
+     (nth (position triple truth-table-3 :test #'string=)
+	  (map 'list #'char-to-string (string-to-list rule)))))
+
+;; (evolve-digits-by-rule 0 0 0 "10000000") => 1
+;; (evolve-digits-by-rule 0 0 1 "10000000") => 0
+
+;; Eventually we may want a "Baldwin effect" version of
+;; `evolve-phenotype-against-genotype' this that takes a "meta-rule"
+;; that says how the phenotype influences the genotype.  How exactly
+;; we're supposed to find these meta-rules is currently a bit unclear.
+
+(defun evolve-phenotype-against-genotype (gen phe)
+  "Take PHE of 0's and 1's and evolve it according to the rules in the genotype, GEN."
+  (let* ((digits (map 'list (lambda (digit)
+			      (string-to-int
+			       (char-to-string digit)))
+		      (string-to-list phe)))
+	 (letters (map 'list #'char-to-string (string-to-list gen))))
+    (map 'string
+	 (lambda (first-digit second-digit third-digit letter)
+	   (let ((rule (get-rule-from-sigil letter)))
+	     (string-to-char
+	      (evolve-digits-by-rule first-digit second-digit third-digit rule))))
+	 (cons 0 (butlast digits 1))
+	 digits
+	 (nconc (cdr digits) (list 0))
+	 letters)))
+
+(defun co-evolve-phenotype-and-genotype (gen phe)
+  "Take PHE of 0's and 1's and genotype GEN, and evolve them against each other."
+  ;; First calculate the new phenotype
+  (let* ((new-phenotype (evolve-phenotype-against-genotype gen phe))
+	 ;; new feed the new phenotype and the old genotype into `evolve-sigil-string'
+	 ;; to calculate the new genotype
+	 (new-genotype (evolve-sigil-string-contextually gen phe new-phenotype)))
+    (list new-genotype new-phenotype)))
+
+(defun run-for-generations (gen n)
+  "Evolve the genotype GEN, N times."
+  (let ((gens (list gen)))
+    (dotimes (j n)
+      (setq gens (nconc gens (list (evolve-sigil-string (car (last gens)))))))
     gens))
+
+;; An effect of *current phenotype* on *next genotype* isn't exactly
+;; a Baldwin effect.  
+(defun run-for-generations-2 (gen phe n)
+  "Evolve the genotype GEN and phenotype PHE, N times."
+  (let ((gen-gens (list gen))
+	(phe-gens (list phe)))
+    (dotimes (j n)
+      (setq gen-gens (nconc gen-gens (list (evolve-sigil-string
+					    (car (last gen-gens))
+					    ;; Current phenotype
+					    (car (last phe-gens))))))
+      (setq phe-gens (nconc phe-gens (list (evolve-phenotype-against-genotype
+					    (car (last phe-gens))
+					    (car (last gen-gens)))))))
+    (list gen-gens phe-gens)))
+
+;; (run-for-generations-2 "!#$%&" "01010" 5)
+
+(defun run-for-generations-3 (gen phe n)
+  "Evolve the genotype GEN together with the phenotype PHE, N times.
+Depending on `evolve-sigil-fn', there may be a Baldwin effect, i.e. an
+interaction between the current phenotype and the next genotype."
+  (let ((gen-gens (list gen))
+	(phe-gens (list phe)))
+    (dotimes (j n)
+      (let ((result (co-evolve-phenotype-and-genotype
+		     (car (last gen-gens))
+		     (car (last phe-gens)))))
+	(setq gen-gens (nconc gen-gens (list (first result))))
+	(setq phe-gens (nconc phe-gens (list (second result))))))
+    (list gen-gens phe-gens)))
+
+;; (run-for-generations-3 "!#$%&" "01010" 5)
 
 (defun print-space-time (str n)
   (pop-to-buffer (get-buffer-create "*spacetime*"))
@@ -452,16 +832,136 @@
   (insert (concat "\n"))
   (image-mode))
 
+(defun print-space-time-2 (gen phe n)
+  (pop-to-buffer (get-buffer-create "*spacetime*"))
+  (fundamental-mode)
+  (erase-buffer)
+  (insert (concat "P3" "\n"))
+  (insert (concat "# " phe " " gen "\n"))
+  (insert (concat (int-to-string (+ (* 2 (length gen)) 1)) " " (int-to-string n) "\n"))
+  (insert "255\n")
+  (let* ((data (run-for-generations-2 gen phe n)))
+    ;; for all time
+    (cl-mapc (lambda (gen-era phe-era)
+	       ;; for all space (genotype edition)
+	       (mapc (lambda (gen-elt)
+		       ;; insert relevant RGB triple
+		       (mapc (lambda (num)
+			       (insert (concat (int-to-string num) " ")))
+			     (hexrgb-hex-to-color-values
+			      (third
+			       (car (member-if (lambda (a)
+						 (string= (char-to-string gen-elt)
+							  (second a)))
+					       truth-table-8)))))
+		       (insert " "))
+		     gen-era)
+	       ;; Insert separator
+	       (insert (concat "255 255 255" " "))
+	       ;; for all space (phenotype edition)
+	       (mapc (lambda (phe-elt)
+		       (if (string= (char-to-string phe-elt) "0")
+			   (mapc (lambda (num)
+				   (insert (concat (int-to-string num) " ")))
+				 (hexrgb-hex-to-color-values "#000000"))
+			 (mapc (lambda (num)
+				 (insert (concat (int-to-string num) " ")))
+			       (hexrgb-hex-to-color-values "#ffffff")))
+		       (insert " "))
+		     phe-era)
+	       (insert "\n"))
+	     (first data)
+	     (second data))
+    (goto-char (point-max))
+    (insert (concat "\n"))
+    (image-mode)))
+
+;; (print-space-time-2 "01010" "!#$%&" 10)
+
+(defun print-space-time-3 (gen phe n)
+  (pop-to-buffer (get-buffer-create "*spacetime*"))
+  (fundamental-mode)
+  (erase-buffer)
+  (insert (concat "P3" "\n"))
+  (insert (concat "# " phe " " gen "\n"))
+  (insert (concat (int-to-string (+ (* 2 (length gen)) 1)) " " (int-to-string n) "\n"))
+  (insert "255\n")
+  (let* ((data (run-for-generations-3 gen phe n)))
+    ;; for all time
+    (cl-mapc (lambda (gen-era phe-era)
+	       ;; for all space (genotype edition)
+	       (mapc (lambda (gen-elt)
+		       ;; insert relevant RGB triple
+		       (mapc (lambda (num)
+			       (insert (concat (int-to-string num) " ")))
+			     (hexrgb-hex-to-color-values
+			      (third
+			       (car (member-if (lambda (a)
+						 (string= (char-to-string gen-elt)
+							  (second a)))
+					       truth-table-8)))))
+		       (insert " "))
+		     gen-era)
+	       ;; Insert separator
+	       (insert (concat "255 255 255" " "))
+	       ;; for all space (phenotype edition)
+	       (mapc (lambda (phe-elt)
+		       (if (string= (char-to-string phe-elt) "0")
+			   (mapc (lambda (num)
+				   (insert (concat (int-to-string num) " ")))
+				 (hexrgb-hex-to-color-values "#000000"))
+			 (mapc (lambda (num)
+				 (insert (concat (int-to-string num) " ")))
+			       (hexrgb-hex-to-color-values "#ffffff")))
+		       (insert " "))
+		     phe-era)
+	       (insert "\n"))
+	     (first data)
+	     (second data))
+    (goto-char (point-max))
+    (insert (concat "\n"))
+    (image-mode)))
+
 (defun multiverse-files (m n)
+  "Produce M examples of the evolution of an N x N genotype space."
+  (setq default-directory "~")
   (dotimes (j m)
     (let ((jth (format "%03d" (1+ j))))
       (print-space-time (random-sigil-string n) n)
-      (write-file (concat "~/time" jth ".ppm"))
+      (write-file (concat "time" jth ".ppm"))
       (kill-buffer)
       (shell-command (concat
 		      "convert -scale 1000 time" jth ".ppm st" jth ".ppm"))))
   (shell-command "montage -adjoin st*.ppm times.ppm"))
 
-; (multiverse-files 12 40)
+; (multiverse-files 36 50)
+
+(defun multiverse-files-2 (m n) 
+  "Produce M examples of the evolution of an N x N genotype and N x N phenotype space."
+  (setq default-directory "~")
+  (dotimes (j m) 
+    (let ((jth (format "%03d" (1+ j))))
+      (print-space-time-2 (random-sigil-string n) (random-phenotype-string n)  n)
+      (write-file (concat "dtime" jth ".ppm"))
+      (kill-buffer)
+      (shell-command (concat
+		      "convert -scale 1000 dtime" jth ".ppm dst" jth ".ppm"))))
+  (shell-command "montage -adjoin dst*.ppm dtimes.ppm"))
+
+;; (multiverse-files-2 20 50)
+
+(defun multiverse-files-3 (m n) 
+  "Produce M examples of the evolution of an N x N genotype and N x N phenotype space."
+  (setq default-directory "~")
+  (dotimes (j m) 
+    (let ((jth (format "%03d" (1+ j))))
+      (print-space-time-3 (random-sigil-string n) (random-phenotype-string n) n)
+      (write-file (concat "dtime" jth ".ppm"))
+      (kill-buffer)
+      (shell-command (concat
+		      "convert -scale 1000 dtime" jth ".ppm dst" jth ".ppm"))))
+  (shell-command "montage -adjoin dst*.ppm dtimes.ppm"))
+
+;; (multiverse-files-3 20 50)
 
 ;;; end 256ca.el
