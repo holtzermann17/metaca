@@ -1,0 +1,282 @@
+\ProvidesPackage{hetcasl}[2002/10/04 v0.1 LaTeX Package for CASL v1.0.1]
+%% $Id$
+
+\NeedsTeXFormat{LaTeX2e}
+
+% Required packages
+\RequirePackage{ifthen}
+\RequirePackage{tabularx}
+\RequirePackage{calc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{xspace}
+\RequirePackage{latexsym}
+
+\newcounter{@opentabulars}
+\setcounter{@opentabulars}{0}
+
+\newlength{\@oldparindent}
+\newlength{\@hetcaslmaxwidth}
+\newlength{\@remhetcaslwidth}
+
+\newlength{\@KWwidth}%
+% The next two length variables will be used in \KW
+\newlength{\@realWidth}\newlength{\@neededWidth}
+
+\newlength{\@EqSpace}
+\newlength{\@ABSpace}
+\newlength{\@LeftABSpace}
+\newlength{\@RightABSpace}
+
+\newif\ifhetcasl \hetcaslfalse
+
+\newenvironment{hetcasl}[1][\textwidth]%
+{%begin stuff
+\ifhetcasl%
+\PackageError{hetcasl evironments cannot nested}%
+\else\hetcasltrue\fi%
+\begingroup%
+\setlength{\@oldparindent}{\the\parindent}%
+\setlength{\parindent}{0cm}%
+\setlength{\@hetcaslmaxwidth}{#1}%
+\setlength{\@remhetcaslwidth}{\the\@hetcaslmaxwidth}%
+%\begin{alltt}\begingroup\rmfamily
+\begin{tabbing}%
+% a little line to set up three useful tabstops for rendering parts
+% of a library and or specification
+\KW{view} \=\KW{preds} \=~~~~~~~\=\kill
+}%
+{%end stuff
+\end{tabbing}%
+%\endgroup\end{alltt}
+%\@CloseAllTabulars%
+\setlength{\parindent}{\the\@oldparindent}%
+\endgroup%
+\hetcaslfalse%
+}
+
+\newcommand{\@HetCASLPrelude}{% HetCASL-Prelude
+\settowidth{\@KWwidth}{\textbf{view}}
+%%%% define all the makros needed for typesetting hetCASL
+%
+% \KW prints a KeyWord within a box that is at least \@KWwidth wide.
+% If the keyword needs more space the box is as wide as the kyeword
+% is. The optional argument overrides \@KWwidth with the width of the
+% mandatory argument in bold face. The mandatory argument is always
+% printed in bold face.
+\newcommand{\KW}[2][no--format--keyword]%
+{\ifthenelse{\equal{##1}{no--format--keyword}}%
+{% no optional argument
+\settowidth{\@neededWidth}{\textbf{##2}}}%
+{% optional argument given
+\settowidth{\@realWidth}{\textbf{##2}}%
+\settowidth{\@KWwidth}{\textbf{##1}}%
+\ifthenelse{\@KWwidth > \@realWidth}%
+{\setlength{\@neededWidth}{\@KWwidth}}%
+{\setlength{\@neededWidth}{\@realWidth}}}%
+\makebox[% set the width of the box not smaller
+% than the width of the KeyWord
+\@neededWidth]%
+[l]{\textbf{##2}}%
+}%
+% print the first argument as is and use the second argument as label
+\newcommand{\HetsLabel}[2]{##1}
+% print label for ids
+\newcommand{\IdDeclLabel}[2]{##1} %% {##1\label{##2}}
+\newcommand{\IdApplLabel}[2]{##1} %% {##1\ref{##2}}
+% \SId prints its argument in small caps as a Structured Id for names
+% of specifications, views and libraries
+\newcommand{\SId}[1]{\textsc{##1}}%
+% \SIdIndex prints its argument like \SId but sets an Index Entry if
+% redifined
+\newcommand{\SIdIndex}[1]{\SId{##1}}%
+% \Id prints its argument in italic face as one word, for all other
+% identifiers not covered by \SId and only containing letters, numbers
+% and \_
+\newcommand{\Id}[1]{\textit{##1}}%
+% \AX prints its argument in math modus
+\newcommand{\Ax}[1]{\ensuremath{##1}}%
+% \AltBar prints a | with the space of an = sign
+\settowidth{\@EqSpace}{\Ax{=}}
+\settowidth{\@ABSpace}{\Ax{|}}
+\setlength{\@LeftABSpace}{(\@EqSpace - \@ABSpace) *1/2}
+\setlength{\@RightABSpace}{\@EqSpace - \@ABSpace - \@LeftABSpace}
+\newcommand{\AltBar}{\hspace*{\@LeftABSpace}\Ax{|}\hspace*{\@RightABSpace}}
+
+\newcommand{\ANNOTEWORD}[1]{{\small{}\KW{\%##1}}}
+
+%%%%% Heng todo:
+%% Makros aus casl.sty definieren
+\newcommand{\LBRACE}            {\{}
+\newcommand{\RBRACE}            {\}}
+\newcommand{\FREE}              {\KW{free}\xspace} %plain_keyword
+\newcommand{\FREELBRACE}        {\FREE~\LBRACE}
+\newcommand{\GENERATED}         {\KW{generated}\xspace}
+% \newcommand{\TYPE}              {\KW{type}}
+% \newcommand{\TYPES}             {\KW{types}}
+\newcommand{\FREETYPE}          {\FREE~\TYPE\xspace}
+\newcommand{\FREETYPES}         {\FREE~\TYPES\xspace}
+\newcommand{\GENERATEDTYPE}     {\GENERATED~\TYPE\xspace} %{\KW{generated~type}}
+\newcommand{\GENERATEDTYPES}    {\GENERATED~\TYPES\xspace}
+
+\newcommand{\VAR}               {\KW[preds]{var}\xspace}
+\newcommand{\VARS}              {\KW[preds]{vars}\xspace}
+\newcommand{\AXIOM}             {\KW{axiom}\xspace}
+\newcommand{\AXIOMS}            {\KW{axioms}\xspace}
+
+\newcommand{\HIDE}              {\KW{hide}\xspace}
+\newcommand{\REVEAL}            {\KW{reveal}\xspace}
+\newcommand{\WITH}              {\KW{with}\xspace}
+\newcommand{\THEN}              {\KW[view]{then}\xspace} % hetcasl_keyword
+\newcommand{\THENCONS}          {\THEN~\ANNOTEWORD{cons}\xspace}
+\newcommand{\THENDEF}           {\THEN~\ANNOTEWORD{def}\xspace}
+\newcommand{\THENIMPLIES}       {\THEN~\ANNOTEWORD{implies}\xspace}
+\newcommand{\THENMONO}          {\THEN~\ANNOTEWORD{mono}\xspace}
+\newcommand{\AND}               {\KW[view]{and}\xspace}
+\newcommand{\LOCAL}             {\KW{local}\xspace}
+\newcommand{\THENLOCAL}         {\THEN~\LOCAL}
+\newcommand{\WITHIN}            {\KW{within}\xspace}
+\newcommand{\CLOSED}            {\KW{closed}\xspace}
+\newcommand{\FIT}               {\KW{fit}\xspace}
+\newcommand{\TO}                {\KW{to}\xspace}
+\newcommand{\LOGIC}             {\KW{logic}\xspace}
+
+\newcommand{\SPEC}              {\KW[view]{spec}\xspace}
+\newcommand{\VIEW}              {\KW[view]{view}\xspace}
+\newcommand{\END}               {\KW{end}\xspace}
+
+\newcommand{\ARCH}              {\KW{arch}\xspace}
+\newcommand{\ARCHSPEC}          {\ARCH~\KW{spec}\xspace}
+\newcommand{\UNITSPEC}          {\KW{unit}~\KW{spec}\xspace}
+\newcommand{\UNITS}             {\KW{units}\xspace}
+\newcommand{\GIVEN}             {\KW{given}\xspace}
+\newcommand{\RESULT}            {\KW{result}\xspace}
+
+\newcommand{\LIBRARY}           {\KW{library}\xspace}
+\newcommand{\FROM}              {\KW[view]{from}\xspace}
+\newcommand{\GET}               {\KW{get}\xspace}
+\newcommand{\VERSION}           {\KW{version}\xspace}
+
+\newcommand{\PROD}              {\Ax{\times}}
+\newcommand{\TOTAL}             {\Ax{\rightarrow}}
+\newcommand{\PARTIAL}           {\Ax{\rightarrow}}
+\newcommand{\MAPSTO}            {\Ax{\mapsto}}
+
+\newcommand{\ASSOC}             {\Id{assoc}}
+\newcommand{\COMM}              {\Id{comm}}
+\newcommand{\IDEM}              {\Id{idem}}
+\newcommand{\UNIT}              {\Id{unit}\xspace}
+
+\newcommand{\EXISTS}            {\Ax{\exists}}
+\newcommand{\EXISTSUNIQUE}      {\AX{\exists!}}
+\newcommand{\IMPLIES}           {\Ax{\Rightarrow}}
+\newcommand{\IFF}               {\Ax{\Leftrightarrow}}
+\newcommand{\EEQ}               {\Ax{\stackrel{e}{=}}}
+\newcommand{\A}                 {\Ax{\wedge}}
+\newcommand{\V}                 {\Ax{\vee}}
+\newcommand{\IN}                {\Ax{\in}}
+\newcommand{\NOT}               {\Ax{\neg}}
+\newcommand{\FORALL}            {\Ax{\forall}}
+\newcommand{\BULLET}            {\Ax{\;\bullet\;}}
+
+\newcommand{\IF}                {\Id{if}\xspace}
+\newcommand{\WHEN}              {\Id{when}\xspace}
+\newcommand{\ELSE}              {\Id{else}\xspace}
+\newcommand{\DEF}               {\Id{def}\xspace}
+\newcommand{\AS}                {\Id{as}\xspace}
+\newcommand{\TRUE}              {\Id{true}\xspace}
+\newcommand{\FALSE}             {\Id{false}\xspace}
+
+%%%% SORT, OP, PRED : drei Varianten   %% Type auch
+\newcommand{\KWC}[2][preds]{%
+\ifthenelse{\equal{##1}{KW}}%
+{%KW as parameter
+\KW{##2}}%
+{% else to KW as parameter
+\ifthenelse{\equal{##1}{ID}}%
+{%ID as parameter
+\Id{##2}}
+{% else to ID as parameter
+\KW[preds]{##2}}}%
+}%% end of KWC definition
+\newcommand{\SORT}[1][preds]{\KWC[##1]{sort}\xspace}
+\newcommand{\SORTS}[1][preds]{\KWC[##1]{sorts}\xspace}
+\newcommand{\ESORT}[1][preds]{\KWC[##1]{esort}\xspace}
+\newcommand{\ESORTS}[1][preds]{\KWC[##1]{esorts}\xspace}
+\newcommand{\OP}[1][preds]{\KWC[##1]{op}\xspace}
+\newcommand{\OPS}[1][preds]{\KWC[##1]{ops}\xspace}
+\newcommand{\PRED}[1][preds]{\KWC[##1]{pred}\xspace}
+\newcommand{\PREDS}[1][preds]{\KWC[##1]{preds}\xspace}
+\newcommand{\TYPE}[1][preds]{\KWC[##1]{type}\xspace}
+\newcommand{\TYPES}[1][preds]{\KWC[##1]{types}\xspace}
+\newcommand{\ETYPE}[1][preds]{\KWC[##1]{etype}\xspace}
+\newcommand{\ETYPES}[1][preds]{\KWC[##1]{etypes}\xspace}
+\newcommand{\CLASS}[1][preds]{\KWC[##1]{class}\xspace}
+\newcommand{\CLASSES}[1][preds]{\KWC[##1]{classes}\xspace}
+\newcommand{\FUN}[1][preds]{\KWC[##1]{fun}\xspace}
+\newcommand{\FUNS}[1][preds]{\KWC[##1]{funs}\xspace}
+
+%% 1. mit \KWC[preds]{} default
+%% 2. mit \KWC[KW]{}
+%% 3. mit \KWC[ID]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% starting a library
+\newcommand{\library}[1]{\KW{library}\ \SId{##1}\ }
+% printing a version number
+%\newcommand{\version}[1]{\KW{version}\ ##1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% comments, annotations and labels
+\newcommand{\commentline}[1]{\textbf{\%\%}{\small##1}}
+%
+\newenvironment{commentgroup}%
+{\textbf{\%\{}\begingroup\small}%
+{\endgroup\textbf{\}\%}}%
+%
+\newcommand{\annoteline}[2]{\textbf{\%##1}\ {\small \(##2\)}}%
+%
+\newenvironment{annotegroup}[1]%
+{\textbf{\%##1(}\begingroup\small}%
+{\endgroup\textbf{)\%}}%
+%
+\newcommand{\casllabel}[1]{\textbf{\%(}{\small##1}\textbf{)\%}}%
+%
+\newenvironment{mlabel}%
+{\textbf{\%(}\begingroup\small}%
+{\endgroup\textbf{)\%}}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\newcommand{\place}{\_\_}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% download items (from, get are automatically printed)
+\newenvironment{downloaditem}[1]%
+{\begingroup\sc
+\textnormal{\textbf{from}}\ ##1\ %
+%\textnormal{\ifthenelse{\equal{##1}{no-version}}{}{\version{##1}\ }}%
+\textnormal{\textbf{get}}}%
+{\endgroup}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% specifications
+% specdefn starts a new spec defn
+% arguments: ##1 ::= opt. semantic-anno
+%            ##2 ::= spec name
+%            ##3 ::= parameters (see parameterspecs-env)
+%            ##4 ::= imports (see importspecs-env)
+\newenvironment{specdefn}[4][no-semantic-anno]%
+{\textbf{spec}\ \textsc{##2}%
+\ifthenelse{\equal{##3}{}}{}{##3}%
+\ \(=\)%
+}%
+{}
+% end of \@HetCASLPrelude
+}
+\@HetCASLPrelude%
+%% helpers
+% calculate a new width based on \@remhetcaslwidth and the fixed width
+% given as argument.
+\newcommand{\@calc@width}[1]{}
+%\newcommand{\@tabnewline}{\\&}
+
+\newcommand{\@condEOL}{\ifthenelse{\the@opentabulars=0}{\\}{\@tabnewline}}
+
+\newcommand{\@CloseAllTabulars}{}
