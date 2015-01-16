@@ -22,7 +22,7 @@
              {\raisebox{-2pt}{$\scriptstyle\mapsto$}}
              {\raisebox{-2pt}{$\scriptscriptstyle\mapsto$}}}
 
-\usepackage{marvosym}
+\usepackage{marvosym,hetcasl}
 
 
 \usepackage[hidelinks]{hyperref}
@@ -31,7 +31,7 @@
 
 \title{The Search for Computational Intelligence,\\ or, How Universal is Universality?}
 
-\author{Joseph Corneli\institute{Department of Computing, Goldsmiths College, University of London\newline\Email \url{j.corneli@gold.ac.uk}} \and Ewen MacLean\institute{School of Informatics, University of Edinburgh\newline\Email \url{ewenmaclean@gmail.com}} }
+\author{Joseph Corneli\institute{Department of Computing, Goldsmiths College, University of London\newline\Email \url{j.corneli@gold.ac.uk}} \and Ewen Maclean\institute{School of Informatics, University of Edinburgh\newline\Email \url{ewenmaclean@gmail.com}} }
 
 \maketitle
 \bibliographystyle{AISB2008}
@@ -61,13 +61,39 @@ chaos.'' (Read more here and talk about the $\lambda$ thing.)
 \cite{hofstadter1995prolegomena,marshall1999metacat} took a rather
 different but still somewhat related approach.
 
+
 Explain the background on computational blending and why we thought
 domain would be a revealing experiment.  (Basically, CAs do a simple
 kind of blending already.)
 
+\subsection{Conceptual Blending}
+
+Following the approach of Goguen \cite{}, we propose exploiting
+existing formalisms of blending in the context of cellular automata to
+investigate emergent and novel behaviours. The fundamental building blocks used in calculating concept or theory blends are
+\begin{description}
+\item[Input Concepts] are the theories or concepts which have some degree of commonality, which is not necessarily syntactic. 
+\item[Signature Morphism] is a definition of how symbols are mapped between theories or concepts. 
+\item[Generic Space] is the space which contains a theory which is common to both input theories.
+\item[Blend] is the space computed by combining both theories. The computation is computed using a ``pushout'' from the underlying categorical semantics \cite{}. 
+\end{description}
+
+Once a blend has been computed, it may represent a concept which is in some way inconsistent. Equally it may represent a concept which is in some way incomplete. We can then either weaken an input teory or refine the blend:
+\begin{description}
+\item[Weakening] Given an inconsistent blend it is possible to weaken the input concept in order to produce a consistent blend. Weakening means removing symbols or axioms from the input concept.
+\item[Refinement] Given a blend which represents a concept which is in some way incomplete, it is possible to refine the concept by adding symbols or axioms.
+\end{description}
+
+This paper presents an example of concepts to which the blending process applies. We describe the components of blending in the context of cellular automata in \S\ref{}.
+
 \clearpage
 
 \section{Implementation}
+%%%% describe genotype/phenotype definition?
+
+
+%%%% section header?
+\subsection{Generating Genotypes}
 
 To explain how this works, consider the following example.  Each elementary CA rule defines a mapping from all eight strings of 0's and 1's to the set \{0,1\}.  Thus, for example the rule 01010100 is defined as the following operation:
 \begin{lstlisting}[mathescape]
@@ -95,7 +121,12 @@ There are 256 of these rules. So, we can build a CA with 256 colors, rather than
 
 This is the straightforward application of a rule without any blending per se, and the results are not particularly impressive.  If we do this with blending, there’s one more step, and we get a different result.
 
-The blending variant says to first compute the ``generic space'' by looking at places where the two adjacent neighbours are the same. Then, whereever we have not resolved the ambiguity (indicated by $\ast$), apply the local rule, as above, to compute the final result: 01101111 in this case.
+%%%introduce blending
+\subsection{Introducing Blending}
+
+%%% say what the input concepts are - call them input rules
+
+The blending variant says to first compute the ``generic space'' by looking at places where the two adjacent neighbours are the same. Then, whereever we have not resolved the ambiguity (indicated by $\ast$), apply the local rule, as above, to compute the final result: 01101101 in this case.
 
 \lstset{
   xleftmargin=.3\columnwidth, xrightmargin=.3\columnwidth
@@ -111,6 +142,116 @@ The blending variant says to first compute the ``generic space'' by looking at p
 1 $\mathbf{0}$ 0     *     $\boxed{1}$
 0 $\mathbf{0}$ 1     *     $\boxed{1}$
 \end{lstlisting}
+
+This blend is formalised in the HETS system \cite{} by introducing CASL files to represent the 8 bit encodings:
+%%%
+%%% CASL file stuff
+%%%
+The computed blend is inconsistent as there is not a unique value representing the output value of each function. In order to resolve this we weaken the input rules in CASL by removing the function values which cause conflict. We now have:
+
+
+
+
+
+
+%%%% below is the CASL latex
+\begin{figure}[!ht]
+\begin{hetcasl}
+\KW{library} \Id{metaca}\\
+\\
+\KW{logic} \SId{CASL}\\
+\\
+\SPEC \=\SIdIndex{METACABitencoding} \Ax{=}\\
+\> \KW{free} \KW{type} \=\Id{Bit} \Ax{:}\Ax{:}\=\Ax{=} \Ax{0} \AltBar{} \Ax{1}\\
+\> \SORT \Id{Triple}\\
+\> \OPS \=\Id{t} \Ax{:} \=\Id{Bit} \Ax{\times} \Id{Bit} \Ax{\times} \Id{Bit} \Ax{\rightarrow} \Id{Triple};\\
+\>\> \Id{bitop}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{LeftRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{RightRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{LocalRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{Generic} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\VIEW \=\SId{Left} \Ax{:} \=\SId{Generic} \KW{to} \SId{LeftRule}\\
+\KW{end}\\
+\\
+\VIEW \=\SId{Right} \Ax{:} \=\SId{Generic} \KW{to} \SId{RightRule}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{Blend} \Ax{=}\\
+\> \KW{combine} \=\Id{Left}, \Id{Right}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{WeakenedLeftRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{WeakenedRightRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\VIEW \=\SId{WeakenedLeft} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedLeftRule}\\
+\KW{end}\\
+\\
+\VIEW \=\SId{WeakenedRight} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedRightRule}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{ConsistentBlend} \Ax{=}\\
+\> \KW{combine} \=\Id{WeakenedLeft}, \Id{WeakenedRight}\\
+\KW{end}
+\end{hetcasl}
+\end{figure}
+
 
 (Say more about Baldwin effect, mutations, and Game of Life
 simulator.)
