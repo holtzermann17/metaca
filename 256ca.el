@@ -372,7 +372,9 @@
 				 `(0 (put-text-property (match-beginning 0)
 							(match-end 0)
 							'face (list :background 
-								    ,(third elt))))))
+								    ,(third elt)
+								    :foreground
+								    "dark magenta")))))
        truth-table-8))
 
 (defun sigil-add-to-font-lock ()
