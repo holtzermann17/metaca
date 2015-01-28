@@ -90,23 +90,18 @@ rules are derived locally at each cell within the CA as it runs.
 
 \subsection{Cellular Automata}
 
-\cite{langton1990computation,mitchell1993revisiting,packard1988adaptation}
-are the classic works on ``edge of chaos'' effects.  In
-\cite{mitchell1993revisiting} and \cite{packard1988adaptation},
-a genetic algorithm is used to search the space of CA rules
-via crossover and mutation.  This sort of evolution is global.
-
-\cite{hofstadter1995prolegomena,marshall1999metacat} took a rather
-different but still somewhat related approach.
-
-\cite{goerg2012licors,goerg2012mixed}
+\input{background-ca}
 
 \subsection{Conceptual Blending}
 
 One of our inspirations for working on this project is that we have
 been studying computational blending \cite{c1}, and CAs seem to do a
 simple kind of blending already.  That is, they consider the value of
-neighbouring cells, and 
+neighbouring cells, and produce a result that combines these results
+to produce the next generation (at least in some abstract sense).  We
+were also inspired by the idea of blending ordered and chaotic
+behaviour to produce edge-of-chaos effects.
+
 
 Following the approach of Goguen \cite{c2}, we propose exploiting
 existing formalisms of blending in the context of cellular automata to
