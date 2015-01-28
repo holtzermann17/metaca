@@ -94,14 +94,14 @@ rules are derived locally at each cell within the CA as it runs.
 
 \subsection{Conceptual Blending}
 
-One of our inspirations for working on this project is that we have
-been studying computational blending \cite{}, and CAs seem to do a
+One of our inspirations for working with cellular automata is that we
+have been involved with a research project that studies computational
+blending \cite{schorlemmer2014coinvent}, and CAs seem to do a very
 simple kind of blending already.  That is, they consider the value of
 neighbouring cells, and produce a result that combines these results
-to produce the next generation (at least in some abstract sense).  We
-were also inspired by the idea of blending ordered and chaotic
+to produce the next generation (in some suitably abstract sense).  We
+were also inspired by the idea of ``blending'' ordered and chaotic
 behaviour to produce edge-of-chaos effects.
-
 
 Following the approach of Goguen \cite{}, we propose exploiting
 existing formalisms of blending in the context of cellular automata to
@@ -124,7 +124,7 @@ process applies.  We describe the components of blending in the
 context of cellular automata in Sections \ref{introducing-blending}
 and \ref{2d-experiments-design}.
 
-\clearpage
+% \clearpage
 
 \section{Implementation}
 %%%% describe genotype/phenotype definition?
@@ -514,11 +514,11 @@ an obvious negentropic role, \emph{apr\`es} Bergson
 \cite{bergson1912creative}.
 
 One strategy that has not been fully exploited here would be to make
-use of a ``Baldwin effect''
-\cite{baldwin-effect,deacon2003hierarchic}, to use ``learning''
-(considered as entropy) in the phenotype layer to drive evolution.
-More specifically, \boxed{0\mystrut}\boxed{0\mystrut}\boxed{0\mystrut}
-$\mapsto$ \boxed{0\mystrut} and
+use of a ``Baldwin effect'' \cite{baldwin-effect,weber2003evolution},
+to use ``learning'' (considered as entropy) in the phenotype layer to
+drive evolution.  More specifically,
+\boxed{0\mystrut}\boxed{0\mystrut}\boxed{0\mystrut} $\mapsto$
+\boxed{0\mystrut} and
 \boxed{1\mystrut}\boxed{1\mystrut}\boxed{1\mystrut} $\mapsto$
 \boxed{1\mystrut} seem to be relatively uninteresting behaviours, but
 they are also hard to resist under the blending dynamics as we've
@@ -631,7 +631,13 @@ behaviour we would recognize as ``intelligent.''
 
 \section{Acknowledgements}
 
-Coinvent, etc.
+This research has been funded by the Future and Emerging Technologies
+(FET) programme within the Seventh Framework Programme for Research of
+the European Commission, under FET-Open Grant number 611553
+(COINVENT).
+
+We thank Timothy Teravainen, Raymond Puzio, and Cameron Smith for
+helpful conversations and pointers to literature.
 
 \bibliography{metaca}
 

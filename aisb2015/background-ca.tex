@@ -1,11 +1,50 @@
+A crucial development in the history of CA research was the proof
+\cite{cook2004universality} that certain CA rules are Turing complete
+(in particular, Rule 110 in Wolfram's numbering system
+\cite{wolfram1994cellular} enjoys this property).
+
+Earlier classic works
 \cite{langton1990computation,mitchell1993revisiting,packard1988adaptation}
-are the classic works on ``edge of chaos'' effects.  In
+exploring related ``edge of chaos'' effects.  In
 \cite{packard1988adaptation,mitchell1993revisiting,mitchell1994evolving},
-genetic algorithms are used to search the space of CA rules
-via crossover and mutation.  This sort of evolution is global and
-is not connected
+genetic algorithms are used to search the space of CA rules via
+crossover and mutation.  This sort of evolution is global and is
+connected with the CA rule by a derived parameter, ``Langton's
+$\lambda$'' (cf. \cite{langton1990computation}).  An overview of the
+``EvCA'' programme is presented in \cite{hordijk2013evca}.
 
-\cite{hofstadter1995prolegomena,marshall1999metacat} took a rather
-different but still somewhat related approach.
+Closest to the work presented here is \cite{sipper1997evolution},
+which introduces the paradigm of \emph{cellular
+  programming}.\footnote{``\emph{As opposed to the standard genetic
+    algorithm, where a population of independent problem solutions
+    globally evolves, our approach involves a grid of rules that
+    coevolves locally}'' \cite[p. 74]{sipper1997evolution}.}  As the
+name indicates, this approach is a fusion of cellular automata and
+genetic programming ideas.  Local evolution of the CA rule makes use
+of a local ``fitness'' (\cite[pp. 79--81]{sipper1997evolution}), as
+the systems are evolved to perform certain global computational tasks.
 
-\cite{goerg2012licors,goerg2012mixed}
+In the current effort, although we are interested in behaviour that
+tends towards edge-of-chaos effects, system evolution is not directly
+guided by a specific fitness criterion, but only by variations on the
+``crossover'' mechanism.
+
+One early application of cellular programming is to evolutionary game
+theory, a field to which it bears a strong resemblance.  We do not
+consider game theoretic approaches in this work, despite being
+inspired by the social metaphors that are involved
+(e.g. \cite{nowak1992evolutionary,nowak2006five}).  In our thinking
+about CAs, we often switch between conceptual/symbolic,
+social/ethical, biological/genetic, and physical/geometric metaphors.
+
+In this connection it is worth mentioning some recent work with CAs
+\cite{goerg2012licors,goerg2012mixed} that continues in the earlier
+tradition of the EvCA project (cf. \cite{hordijk2001upper}), making
+use of a relativistic ``light cone'' analysis to identify structure in
+CAs.  The current paper does not pursue any detailed \emph{post hoc}
+analysis of CA behaviour, although we plan to explore this further in
+subsequent work.  Finally, although not focusing on CAs per se,
+\cite{hofstadter1995prolegomena} outlines a set of motivating criteria
+for the design of systems that exhibit ``emergent'' intelligence.
+
+
