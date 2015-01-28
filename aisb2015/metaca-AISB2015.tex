@@ -37,11 +37,11 @@
 
 \title{The Search for Computational Intelligence}
 
-\author{Joseph Corneli%
+\author{Joseph Corneli
 \institute{Department of Computing, Goldsmiths College, University of London\newline
-\Email \url{j.corneli@gold.ac.uk}}%
-\and%
-Ewen Maclean%
+\Email \url{j.corneli@gold.ac.uk}}
+\and
+Ewen Maclean
 \institute{School of Informatics, University of Edinburgh\newline
 \Email \url{ewenmaclean@gmail.com}}}
 
@@ -49,19 +49,40 @@ Ewen Maclean%
 \bibliographystyle{AISB2008}
 
 \begin{abstract}
-XXX YYY
+We define and explore in simulation several rules for the local
+evolution of cellular automata.
 \end{abstract}
 
 \section{Introduction}
+
+This paper takes a local approach to studying the evolution of
+cellular automata, following on the global approach of
+\cite{pavlic2014self}.  These authors present a system they call
+PICARD, for ``PICARD Implements CA Rules Differently.''
+
+\begin{quote}
+\emph{Like a traditional one-dimensional CA, PICARD executions move
+  from one iteration to another by some rule. However, whereas
+  traditional CA's require the rule to be static and externally
+  specified, PICARD infers the iteration rule from the current state
+  of the CA itself.}
+\end{quote}
+
+PICARD's inferred rule is derived from the current state of the CA by
+a global characteristics, such as the number of 1's in the CA's
+current state (modulo 256), or the density $\rho$ of 1's (normalized
+as $\rho/256$).  These global criteria are similar to Van Valen's
+theory of resource density as an ``incompressible gel'' \cite{van1973new}.
+This sort of global criterion breaks the local-information assumption
+for which CAs are best known.
+
+In the current paper we introduce the notion of a MetaCA, in which CA
+rules are derived locally at each cell within the CA as it runs.
 
 \begin{figure}
 \includegraphics[width=\columnwidth]{metaca.png}
 \caption{An illustration of MetaCA evolution\label{metaca-taster}}
 \end{figure}
-
-This paper takes a local approach to studying the
-evolution of cellular automata, following on the
-global approach of \cite{pavlic2014self}.
 
 \newpage
 
@@ -69,18 +90,23 @@ global approach of \cite{pavlic2014self}.
 
 \subsection{Cellular Automata}
 
-\cite{mitchell1993revisiting} is the classic work on ``edge of
-chaos.'' (Read more here and talk about the $\lambda$ thing.)
+\cite{langton1990computation,mitchell1993revisiting,packard1988adaptation}
+are the classic works on ``edge of chaos'' effects.  In
+\cite{mitchell1993revisiting} and \cite{packard1988adaptation},
+a genetic algorithm is used to search the space of CA rules
+via crossover and mutation.  This sort of evolution is global.
 
 \cite{hofstadter1995prolegomena,marshall1999metacat} took a rather
 different but still somewhat related approach.
 
-
-Explain the background on computational blending and why we thought
-domain would be a revealing experiment.  (Basically, CAs do a simple
-kind of blending already.)
+\cite{goerg2012licors,goerg2012mixed}
 
 \subsection{Conceptual Blending}
+
+One of our inspirations for working on this project is that we have
+been studying computational blending \cite{}, and CAs seem to do a
+simple kind of blending already.  That is, they consider the value of
+neighbouring cells, and 
 
 Following the approach of Goguen \cite{}, we propose exploiting
 existing formalisms of blending in the context of cellular automata to
