@@ -103,14 +103,14 @@ to produce the next generation (in some suitably abstract sense).  We
 were also inspired by the idea of ``blending'' ordered and chaotic
 behaviour to produce edge-of-chaos effects.
 
-Following the approach of Goguen \cite{}, we propose exploiting
+Following the approach of Goguen \cite{c2}, we propose exploiting
 existing formalisms of blending in the context of cellular automata to
 investigate emergent and novel behaviours. The fundamental building blocks used in calculating concept or theory blends are
 \begin{description}
 \item[Input Concepts] are the theories or concepts which have some degree of commonality, which is not necessarily syntactic. 
 \item[Signature Morphism] is a definition of how symbols are mapped between theories or concepts. 
 \item[Generic Space] is the space which contains a theory which is common to both input theories.
-\item[Blend] is the space computed by combining both theories. The computation is computed using a ``pushout'' from the underlying categorical semantics \cite{}. 
+\item[Blend] is the space computed by combining both theories. The computation is computed using a ``pushout'' from the underlying categorical semantics \cite{c3}. 
 \end{description}
 
 Once a blend has been computed, it may represent a concept which is in some way inconsistent. Equally it may represent a concept which is in some way incomplete. We can then either weaken an input teory or refine the blend:
@@ -120,9 +120,19 @@ Once a blend has been computed, it may represent a concept which is in some way 
 \end{description}
 
 This paper presents an example of concepts to which the blending
-process applies.  We describe the components of blending in the
-context of cellular automata in Sections \ref{introducing-blending}
-and \ref{2d-experiments-design}.
+process applies. In general the notion of a signature morphism allows
+input concepts expressed in different languages to be blended. In this
+paper the examples shown have input concepts expressed in the same
+language, and indeed have the same specification. This means that the
+morphisms are not interesting and the calculated pushout could be
+computed without utilising the full machinery of the category theory
+provided by HETS. However, as discussed in \S\ref{fur}, future work
+will explore the idea of combining rules for cellular automata which
+may have entirely different techniques for expressing propagation. It
+is for this reason that we exploit the HETS system to compute the
+blends within the systems we use. We describe the existing components
+of blending in the context of cellular automata in Sections
+\ref{introducing-blending} and \ref{2d-experiments-design}.
 
 % \clearpage
 
@@ -218,12 +228,18 @@ across each allele, to arrive at the final result.
 
 For illustrative purposes, this blend has been formalised in the HETS
 system \cite{mossakowski2007heterogeneous} by introducing CASL files
-to represent the 8 bit encodings (Listing \ref{CASL-listing}).
+to represent the 8 bit encodings (Listing \ref{CASL-listing}, and corresponding development graph shown in Figure \ref{fig:hetsblend}). 
+%
+\begin{figure}[!ht]
+\includegraphics[width=0.45\textwidth]{dol_dev.pdf}
+\label{fig:hetsblend}
+\caption{The development graph for calculating a blend of 8 bit encodings}
+\end{figure}
 %
 The computed blend is inconsistent as there is not a unique value
 representing the output value of each function.  In order to resolve
 this we weaken the input rules in CASL by removing the function values
-which cause conflict.
+which cause conflict. 
 %
 Note that purposes of efficiency, we have implemented our 1D
 experiments in LISP rather than in \mbox{HETS}/\mbox{CASL}.  We've put
@@ -234,37 +250,149 @@ Github\footnote{\url{https://github.com/holtzermann17/metaca}}.
 
 \subsection{2D Experiments} \label{2d-experiments-design}
 
-We've developed a parallel implementation in the 2D case, inspired by
-Conway's Game of Life.  Conway's rule says that a cell dies when less
-than 3 or more than 5 of its 8 neighbours (in cardinal and
-intercardinal directions) are alive, survives when 3, 4, or 5
-neighbours are alive, and that it reproduces when 3 or 4 neighbours
-are alive.  This standard case is illustrated in Figure
-\ref{conway-rule}.
+%% We've developed a parallel implementation in the 2D case, inspired by
+%% Conway's Game of Life.  Conway's rule says that a cell dies when less
+%% than 3 or more than 5 of its 8 neighbours (in cardinal and
+%% intercardinal directions) are alive, survives when 3, 4, or 5
+%% neighbours are alive, and that it reproduces when 3 or 4 neighbours
+%% are alive.  This standard case is illustrated in Figure
+%% \ref{conway-rule}.
 
-\begin{figure}[!ht]
-\includegraphics[width=\columnwidth]{conway}
-\caption{Conway rule for the Game of Life\label{conway-rule}}
-\end{figure}
+\subsubsection{Localised propagation}
+In order to extend the ideas presented so far in the 1-d case, let us
+consider a variant of Conway's Game of Life \cite{conway}, in which a
+global rule exists defining whether a square is alive or dead. We
+extend this by introducing the notion of a local rule at each square
+-- a genotype, which governs the propagation of the phenotype. 
 
-We've considered generalisations variants of this rule (Figure
-\ref{generalised-conway-rule}), giving each cell a \emph{weight}
-(between 0 and 1000) and a genotype that sets the survival parameters
-$x$, $y$, and $z$ in terms of the sum of weights of the neighours.
-\begin{figure}[!ht]
-\includegraphics[width=\columnwidth]{2dgenotype}
-\caption{Generalisation of Conway's rule\label{generalised-conway-rule}}
-\end{figure}
+In Conway's Game of life, one can view the rules for propagation as
+partitions on a finite length line (0-8), and correspond to the {\em
+  genotype} describe in \S\ref{Secno}:
+\begin{center}
+\includegraphics[width=0.45\textwidth]{conway.pdf}
+\end{center}
+The number on the line corresponds to the number of alive neighbours
+to a square. If the square is dead then it becomes alive (labelled
+reproduce) if the number of alive neighbours is exactly three. If
+there are five or more alive neighbours the square dies from
+overcrowding. If there are fewer than three alive neighbours the
+square dies from underpopulation. In all other cases the square
+maintains its status.
+%% \begin{figure}[!ht]
+%% \includegraphics[width=\columnwidth]{conway}
+%% \caption{Conway rule for the Game of Life\label{conway-rule}}
+%% \end{figure}
 
-These genotypes can also be blended: given two genotypes $(x_1, y_1,
+%% We've considered generalisations variants of this rule (Figure
+%% \ref{generalised-conway-rule}), giving each cell a \emph{weight}
+%% (between 0 and 1000) and a genotype that sets the survival parameters
+%% $x$, $y$, and $z$ in terms of the sum of weights of the neighours.
+%% \begin{figure}[!ht]
+%% \includegraphics[width=\columnwidth]{2dgenotype}
+%% \caption{Generalisation of Conway's rule\label{generalised-conway-rule}}
+%% \end{figure}
+
+This can be generalised to partitions within a more finely grained
+line, for example from 0 to 1000, one creates a genotype $\{x,y,z\}$:
+\begin{center}
+\includegraphics[width=0.45\textwidth]{2dgenotype.pdf}
+\end{center}
+Now of course simply summing the number of alive neighbours is
+not interesting. Instead we introduce the notion of a {\em weight} to
+each cell. The {\em phenotype} of the cell is then a pair $\{alive, weight\}$ of elements, which denote whether the cell is alive, and what weight is has. For this presentation we always calculate a newly propagated weight as the average of the neighbours' weights.
+
+
+The notion of local propagation is introduced by allowing the
+genotypes to be blended at each point that a cell remains or becomes
+alive. In this case as we have represented the genotype as a
+partitioned line, we can, for example perform a blend where the
+partition is blended in such a way as the minimise the lowest bound
+and maximise the highest bound, and maximise the interval for
+reproduction. Given two genotypes $(x_1, y_1,
 z_1)$ and $(x_2, y_2, z_2)$, the blend is $(\mathrm{min} \{x_1,x_2\},
-\mathrm{max} \{y_1,y_2\}, \mathrm{max} \{z_1,z_2\})$; see Figure
-\ref{blending-2d-rule}.  This blend corresponds to \textbf{[\ldots
-    Ewen please add a line or so here]}.
+\mathrm{max} \{y_1,y_2\}, \mathrm{max} \{z_1,z_2\})$
+\begin{center}
+\includegraphics[width=0.45\textwidth]{2dgenotypeblend.pdf}
+\end{center}
+This is just one of several possible blend types which we refer to as a {\em union} blend, as it maximises the partitions which pertain to survival. 
+
+To see the behaviour
+of the union blend in action consider an initially populated grid, where
+colours represent the weights of alive cells:
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{initial2d.jpg}
+ \end{center}
+For this example, we restrict the computation of the blend for a particular cell to only when the cell is alive in the next iteration. Also we compute the blend of genotype for all neiughbours - whether dead or alive. After 300 iterations this grows a small amount to
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{3002d.jpg}
+ \end{center}
+then the population grows with large patches of low-weight (black) cells
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{30002d.jpg}
+ \end{center}
+then finally some structure starts to appear in the clustering:
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{300002d.jpg}
+ \end{center}
+The propagation that follows shows a population of cells which grows
+slowly overtime. The majority of the members have low weight
+(represented by black squares), but interspersed within the population
+are squares with high weight (represented by red squares). 
+
+\subsubsection{Modified Blends}
+
+So far we have only showed the union blend working on the genotype. However, it is possible to use different blending techniques:
+\begin{itemize}
+\item{Consider blending only the genotypes of alive neighbours, or all neighbours;}
+\item{Consider only blending genotypes for cells which are alive after propagation;}
+\item{Consider an ``intersection'' blend, where the partition sizes for survival are minimised;}
+\item{Consider an ``average'' blend, where the values of each genotype $\{x_i,y_i,z_i\}$ are summed and divided by either the number of alive neighbours, or the total number of neighbours.}
+\end{itemize}
+%% just union
+As an example of different observed emergent behaviour consider a union blend where the blend is only computed from alive neighbours, and as before we compute only for cells which are alive at the next iteration. We start with an initial state
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{init2.jpg}
+ \end{center}
+and observe a changing, but relatively steady pattern (resembling the motion of a flame) which does not grow in size using the union blend:
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{init2_union.jpg}
+ \end{center}
+\noindent where the weight characteristic of the phenotype of each cell has fallen to very low.
+
+Now consider applying instead an average blend under the same initial conditions:
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{init2_average.jpg}
+ \end{center}
+Then we see a less steady but more active growth, with populations moving in triangular shapes away from population centres, leaving very small but steady and inactive populations behind:
+ \begin{center}
+ \includegraphics[width=0.45\textwidth]{init2daverage++.jpg}
+ \end{center}
+\noindent the fastly moving populations do not have a convergent weight characteristic of the phenotype, as in the case with the union blend for the same initial conditions. 
+
+
+%%intro intersec, average, and inhertiance criteria
+
+\subsubsection{Modified Genotypes}
+
+As discussed in \S\ref{blend}, it is possible to exploit existing machinery to calculate blends of genotypes which are expressed in very different languages. As an example consider....
+
+\subsubsection{Social Interpretations}
+
+
+
+\subsubsection{Implementaion}
+The genotype can again be represented in CASL as shown in Figure \ref{fig:casl2d}, with HETS performing a
+pushout to create the necessary blend. 
+\begin{figure}[!ht]
+CASL theory GOES HERE
+\label{fig:casl2d}
+\caption{A CASL specification for a 2d genotype}
+\end{figure}
+
 
 The 2D simulations have been realised in an interactive Java
 applet\footnote{\url{http://www.algorhythmical.co.uk/cablender.html}}
-and the code is available\footnote{Where?}.
+and the code is available\footnote{\url{https://github.com/ewenmaclean/2dCA}}.
 
 \FloatBarrier
 \newpage
@@ -275,14 +403,22 @@ and the code is available\footnote{Where?}.
 \KW{library} \Id{metaca}\\
 \\
 \KW{logic} \SId{CASL}\\
-\\
+\%\% The specification of 8 bit encoding\\
 \SPEC \=\SIdIndex{METACABitencoding} \Ax{=}\\
 \> \KW{free} \KW{type} \=\Id{Bit} \Ax{:}\Ax{:}\=\Ax{=} \Ax{0} \AltBar{} \Ax{1}\\
 \> \SORT \Id{Triple}\\
 \> \OPS \=\Id{t} \Ax{:} \=\Id{Bit} \Ax{\times} \Id{Bit} \Ax{\times} \Id{Bit} \Ax{\rightarrow} \Id{Triple};\\
 \>\> \Id{bitop}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
 \KW{end}\\
-\\
+\%\% The specification of how to calculate a blend given 3 encodings\\
+\SPEC \=\SIdIndex{METACABitcalc} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\OP \=\Id{blend}\Ax{\_\_}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\times} \Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
+\> \Ax{\forall} \=\Id{t1}, \Id{t2}, \Id{t3} \Ax{:} \Id{Triple} \\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t1} \Ax{=} \Id{bitop} \Id{t2} \Ax{\Rightarrow} \=\Id{blend} \Id{t1} \Id{t2} \Ax{=} \Id{bitop} \Id{t1}\\
+\> \Ax{\bullet} \=\Ax{\neg} \=\Id{bitop} \Id{t1} \Ax{=} \Id{bitop} \Id{t2} \Ax{\Rightarrow} \=\Id{blend} \Id{t1} \Id{t2} \Ax{=} \Id{bitop} \Id{t3}\\
+\KW{end}\\
+\%\% An example left encoding\\
 \SPEC \=\SIdIndex{LeftRule} \Ax{=}\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
@@ -294,7 +430,7 @@ and the code is available\footnote{Where?}.
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
 \KW{end}\\
-\\
+\%\% An example right encoding\\
 \SPEC \=\SIdIndex{RightRule} \Ax{=}\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
@@ -306,7 +442,7 @@ and the code is available\footnote{Where?}.
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
 \KW{end}\\
-\\
+\%\% An example local encoding\\
 \SPEC \=\SIdIndex{LocalRule} \Ax{=}\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
@@ -318,24 +454,24 @@ and the code is available\footnote{Where?}.
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
 \KW{end}\\
-\\
+\%\% Generic is common between left and right\\
 \SPEC \=\SIdIndex{Generic} \Ax{=}\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \KW{end}\\
-\\
+\%\% Morphism from Generic to Left\\
 \VIEW \=\SId{Left} \Ax{:} \=\SId{Generic} \KW{to} \SId{LeftRule}\\
 \KW{end}\\
-\\
+\%\% Morphism from Generic to Right\\
 \VIEW \=\SId{Right} \Ax{:} \=\SId{Generic} \KW{to} \SId{RightRule}\\
 \KW{end}\\
-\\
+\%\% The computed Blend\\
 \SPEC \=\SIdIndex{Blend} \Ax{=}\\
 \> \KW{combine} \=\Id{Left}, \Id{Right}\\
 \KW{end}\\
-\\
+\%\% A weakened left rule\\
 \SPEC \=\SIdIndex{WeakenedLeftRule} \Ax{=}\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
@@ -346,7 +482,7 @@ and the code is available\footnote{Where?}.
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
 \KW{end}\\
-\\
+\%\% A weakened right rule \\
 \SPEC \=\SIdIndex{WeakenedRightRule} \Ax{=}\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
@@ -354,26 +490,27 @@ and the code is available\footnote{Where?}.
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
 \KW{end}\\
-\\
 \VIEW \=\SId{WeakenedLeft} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedLeftRule}\\
 \KW{end}\\
-\\
 \VIEW \=\SId{WeakenedRight} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedRightRule}\\
 \KW{end}\\
-\\
+\%\% A computed blend as new 8 bit encoding
 \SPEC \=\SIdIndex{ConsistentBlend} \Ax{=}\\
 \> \KW{combine} \=\Id{WeakenedLeft}, \Id{WeakenedRight}\\
+\AND \SId{METACABitcalc}\\
+\AND \SId{LocalRule}\\
 \KW{end}
-\end{hetcasl}}
+\end{hetcasl}
+}
 \caption{CASL source code listing calculating the running example $01101110\times 01010100\times 01010101$ via the blending meta-rule\label{CASL-listing}}
 \end{listing}
 
 \newpage
 
-\begin{figure}[!ht]
-\includegraphics[width=\columnwidth]{2dgenotypeblend}
-\caption{Defining blending dynamics for 2D genotypes\label{blending-2d-rule}}
-\end{figure}
+%% \begin{figure}[!ht]
+%% \includegraphics[width=\columnwidth]{2dgenotypeblend}
+%% \caption{Defining blending dynamics for 2D genotypes\label{blending-2d-rule}}
+%% \end{figure}
 
 % \clearpage
 
