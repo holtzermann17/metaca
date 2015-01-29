@@ -92,7 +92,7 @@ rules are derived locally at each cell within the CA as it runs.
 
 \input{background-ca}
 
-\subsection{Conceptual Blending}
+\subsection{Conceptual Blending} \label{sec:blend}
 
 One of our inspirations for working with cellular automata is that we
 have been involved with a research project that studies computational
@@ -103,14 +103,14 @@ to produce the next generation (in some suitably abstract sense).  We
 were also inspired by the idea of ``blending'' ordered and chaotic
 behaviour to produce edge-of-chaos effects.
 
-Following the approach of Goguen \cite{c2}, we propose exploiting
+Following the approach of Goguen \cite{gog05}, we propose exploiting
 existing formalisms of blending in the context of cellular automata to
 investigate emergent and novel behaviours. The fundamental building blocks used in calculating concept or theory blends are
 \begin{description}
 \item[Input Concepts] are the theories or concepts which have some degree of commonality, which is not necessarily syntactic. 
 \item[Signature Morphism] is a definition of how symbols are mapped between theories or concepts. 
 \item[Generic Space] is the space which contains a theory which is common to both input theories.
-\item[Blend] is the space computed by combining both theories. The computation is computed using a ``pushout'' from the underlying categorical semantics \cite{c3}. 
+\item[Blend] is the space computed by combining both theories. The computation is computed using a ``pushout'' from the underlying categorical semantics \cite{MossakowskiEA06}. 
 \end{description}
 
 Once a blend has been computed, it may represent a concept which is in some way inconsistent. Equally it may represent a concept which is in some way incomplete. We can then either weaken an input teory or refine the blend:
@@ -126,7 +126,7 @@ paper the examples shown have input concepts expressed in the same
 language, and indeed have the same specification. This means that the
 morphisms are not interesting and the calculated pushout could be
 computed without utilising the full machinery of the category theory
-provided by HETS. However, as discussed in \S\ref{fur}, future work
+provided by HETS. However, as discussed in \S\ref{sec:mgeno}, future work
 will explore the idea of combining rules for cellular automata which
 may have entirely different techniques for expressing propagation. It
 is for this reason that we exploit the HETS system to compute the
@@ -141,7 +141,7 @@ of blending in the context of cellular automata in Sections
 
 
 %%%% section header?
-\subsection{Generating Genotypes}
+\subsection{Generating Genotypes} \label{sec:geno}
 
 To explain how this works, consider the following example.  Each
 elementary CA rule defines a mapping from all eight strings of 0's and
@@ -267,7 +267,7 @@ extend this by introducing the notion of a local rule at each square
 
 In Conway's Game of life, one can view the rules for propagation as
 partitions on a finite length line (0-8), and correspond to the {\em
-  genotype} describe in \S\ref{Secno}:
+  genotype} described in \S\ref{sec:geno}:
 \begin{center}
 \includegraphics[width=0.45\textwidth]{conway.pdf}
 \end{center}
@@ -372,9 +372,9 @@ Then we see a less steady but more active growth, with populations moving in tri
 
 %%intro intersec, average, and inhertiance criteria
 
-\subsubsection{Modified Genotypes}
+\subsubsection{Modified Genotypes} \label{sec:mgeno}
 
-As discussed in \S\ref{blend}, it is possible to exploit existing
+As discussed in \S\ref{sec:blend}, it is possible to exploit existing
 machinery to calculate blends of genotypes which are expressed in very
 different languages. As an example consider a genotype which is
 defined as in \S\ref{sec:2dlocal}, and another which is defined by
