@@ -258,7 +258,7 @@ Github\footnote{\url{https://github.com/holtzermann17/metaca}}.
 %% are alive.  This standard case is illustrated in Figure
 %% \ref{conway-rule}.
 
-\subsubsection{Localised propagation}
+\subsubsection{Localised propagation} \label{sec:2dlocal}
 In order to extend the ideas presented so far in the 1-d case, let us
 consider a variant of Conway's Game of Life \cite{conway}, in which a
 global rule exists defining whether a square is alive or dead. We
@@ -374,28 +374,97 @@ Then we see a less steady but more active growth, with populations moving in tri
 
 \subsubsection{Modified Genotypes}
 
-As discussed in \S\ref{blend}, it is possible to exploit existing machinery to calculate blends of genotypes which are expressed in very different languages. As an example consider....
-
-\subsubsection{Social Interpretations}
-
-
-
-\subsubsection{Implementaion}
-The genotype can again be represented in CASL as shown in Figure \ref{fig:casl2d}, with HETS performing a
-pushout to create the necessary blend. 
+As discussed in \S\ref{blend}, it is possible to exploit existing
+machinery to calculate blends of genotypes which are expressed in very
+different languages. As an example consider a genotype which is
+defined as in \S\ref{sec:2dlocal}, and another which is defined by
+comparing the hue of just one neighbour. The blend is then a richer
+theory combining elements from both genotypes. The CASL file
+expressing these concepts is given in listing
+\ref{CASL-blend-listing}, and the resulting categorical diagram can be
+seen in Figure \ref{fig:2dblend}. Experiments with using more sophisticated
+genotypes and blends is ongoing work and is not presented here. 
 \begin{figure}[!ht]
-CASL theory GOES HERE
-\label{fig:casl2d}
-\caption{A CASL specification for a 2d genotype}
+\includegraphics[width=0.4\textwidth]{2dblend.pdf}
+\caption{Blending different 2d genotypes}
+\label{fig:2dblend}
 \end{figure}
 
+\begin{listing}
+{\scriptsize
+\begin{hetcasl}
+\KW{library} \Id{metaca2d}\\
+\\
+\KW{logic} \SId{CASL}\\
+\\
+\SPEC \=\SIdIndex{Nat} \Ax{=}\\
+\> \SORT \Id{Nat}\\
+\> \OP \=\Id{max} \Ax{:} \=\Id{Nat} \Ax{\times} \Id{Nat} \Ax{\rightarrow} \Id{Nat}\\
+\> \OP \=\Id{min} \Ax{:} \=\Id{Nat} \Ax{\times} \Id{Nat} \Ax{\rightarrow} \Id{Nat}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{Colour} \Ax{=}\\
+\> \SORT \Id{Colour}\\
+\> \OP \=\Id{maxhue} \Ax{:} \=\Id{Colour} \Ax{\times} \Id{Colour} \Ax{\rightarrow} \Id{Colour}\\
+\KW{end}\\
+\\
+\\
+{{}\KW{\%\%} a 2\Ax{-}d cellular automaton with numerical Genotype}\\
+\SPEC \=\SIdIndex{Numericalencoding} \Ax{=}\\
+\> \SId{Nat}\\
+\THEN \=\SORT \Id{NGenotype}\\
+\> \OPS \=\Id{genotype} \Ax{:} \=\Id{Nat} \Ax{\times} \Id{Nat} \Ax{\times} \Id{Nat} \Ax{\rightarrow} \Id{NGenotype};\\
+\>\> \Id{t} \Ax{:} \=\Id{Nat} \Ax{\times} \Id{Nat} \Ax{\times} \Id{Nat} \Ax{\rightarrow} \Id{NGenotype};\\
+\>\> \Id{numblend} \Ax{:} \=\Id{NGenotype} \Ax{\times} \Id{NGenotype} \Ax{\rightarrow} \Id{NGenotype}\\
+\> \Ax{\forall} \Id{g1}, \Id{g2} \Ax{:} \Id{NGenotype}; \=\Id{x1}, \Id{y1}, \Id{z1}, \Id{x2}, \Id{y2}, \Id{z2}, \Id{x3}, \Id{y3}, \Id{z3} \Ax{:} \Id{Nat} \\
+\> \Ax{\bullet} \=\Id{g1} \Ax{=} \Id{t}(\=\Id{x1}, \Id{y1}, \Id{z1}) \Ax{\wedge} \=\Id{g2} \Ax{=} \Id{t}(\=\Id{x2}, \Id{y2}, \Id{z2}) \\
+\>\> \Ax{\Rightarrow} \=\Id{numblend}(\=\Id{g1}, \Id{g2}) \\
+\>\>\> \Ax{=} \Id{t}(\=\Id{min}(\=\Id{x1}, \Id{x2}), \Id{min}(\=\Id{y1}, \Id{y2}), \Id{max}(\=\Id{z1}, \Id{z2}))\\
+\KW{end}\\
+\\
+\\
+{{}\KW{\%\%} A colour CA Genotype}\\
+\SPEC \=\SIdIndex{Colourencoding} \Ax{=}\\
+\> \SId{Colour}\\
+\THEN \=\SORT \=\Id{CGenotype} \Ax{=} \Id{Colour}\\
+\> \OP \=\Id{hueblend} \Ax{:} \=\Id{CGenotype} \Ax{\times} \Id{CGenotype} \Ax{\rightarrow} \Id{CGenotype}\\
+\> \Ax{\forall} \=\Id{g1}, \Id{g2} \Ax{:} \Id{CGenotype} \\
+\> \Ax{\bullet} \=\Id{hueblend}(\=\Id{g1}, \Id{g2}) \Ax{=} \Id{maxhue}(\=\Id{g1} \Id{as} \Id{Colour}, \=\Id{g2} \Id{as} \Id{Colour})\\
+\KW{end}\\
+\\
+\\
+{{}\KW{\%\%} A generic space}\\
+\SPEC \=\SIdIndex{Genencoding} \Ax{=}\\
+\> \SORT \Id{S}\\
+\> \SORT \Id{Genotype}\\
+\> \OP \=\Id{blend} \Ax{:} \=\Id{Genotype} \Ax{\times} \Id{Genotype} \Ax{\rightarrow} \Id{Genotype}\\
+\KW{end}\\
+\\
+\\
+{{}\KW{\%\%} A signature morphism from Generic to Numerical}\\
+\VIEW \=\SId{NumericalSM} \Ax{:} \\
+\> \SId{Genencoding} \KW{to} \SId{Numericalencoding} \Ax{=} \\
+\> \Id{S} \Ax{\mapsto} \Id{Nat}, \Id{Genotype} \Ax{\mapsto} \Id{NGenotype}, \=\Id{blend} \Ax{\mapsto} \Id{numblend}\\
+\KW{end}\\
+{{}\KW{\%\%} A signature morphism from Generic to Colour}\\
+\\
+\VIEW \=\SId{ColourSM} \Ax{:} \\
+\> \SId{Genencoding} \KW{to} \SId{Colourencoding} \Ax{=} \\
+\> \Id{S} \Ax{\mapsto} \Id{Colour}, \Id{Genotype} \Ax{\mapsto} \Id{CGenotype}, \=\Id{blend} \Ax{\mapsto} \Id{hueblend}\\
+\KW{end}\\
+{{}\KW{\%\%} Blend}\\
+\\
+\SPEC \=\SIdIndex{blend} \Ax{=}\\
+\> \KW{combine} \=\Id{NumericalSM}, \Id{ColourSM}\\
+\KW{end}
+\end{hetcasl}
 
-The 2D simulations have been realised in an interactive Java
-applet\footnote{\url{http://www.algorhythmical.co.uk/cablender.html}}
-and the code is available\footnote{\url{https://github.com/ewenmaclean/2dCA}}.
+}
+\caption{CASL source code for using signature morphisms and pushout
+  calculation to blend
+  genotypes with different languages.\label{CASL-blend-listing}}
+\end{listing}
 
-\FloatBarrier
-\newpage
 
 \begin{listing}
 {\scriptsize
@@ -611,24 +680,69 @@ version of Newton's First Law.
 
 \subsection{2D CAs} \label{2d-results}
 
-\textbf{[Ewen please add 1/4 to 3/4 pp. here].}
+\subsubsection{Research Contribution}
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=\columnwidth]{initial2d.jpg}
-(A)\\ \medskip
-\includegraphics[width=\columnwidth]{3002d.jpg}
-(B)\\ \medskip
-\includegraphics[width=\columnwidth]{30002d.jpg}
-(C)\\ \medskip
-\includegraphics[width=\columnwidth]{300002d.jpg}
-(D)\\
-\end{center}
-\caption{Two dimensional cellular automaton built using blending
-  dynamics: (A) Initial state; (B-D) Evolution over time}
-\end{figure}
+The results of the experiments on two dimensional cellular automata
+are purely observational at present. The motivations of combining a
+notion of blending with cellular automata was to investigate ways in
+which cellular automata could be used to model processes, where
+propagation rules, or genotypes, were locally defined. The main
+research contributions in the field of two dimensional cellular
+automata are
+\begin{itemize}
+\item build an implementational framework where local propagation
+  experiments can be performed;
+\item use the HETS system to show that the notion of blending can be
+  used to invent new propagation rules for different genotypes;
+\item invent simply definable genotypes and blends of these genotypes
+  to show proof of concept, and to be consistent with the research of
+  one dimensional cellular automata.
+\end{itemize}
 
-\newpage
+Our intitial findings are that interesting behaviour can be observed
+even given simple numerical genotypes. 
+
+\subsubsection{Social Interpretation}
+
+One can view the propagation of cells in a two dimensional cellular
+automaton as social process, and blending as a transfer of
+knowledge. In future work we would like to formalise in HETS the
+mechanisms of social knowledge sharing and problem solving in the
+field of mathematics. One can see already from a simple point of view
+that a population of cells such as those shown in \S\ref{sec:2dlocal}
+represents individuals with high social impact (high weight), and those
+with low knowledge or social impact (low weight). The propagation in
+the ``union'' blend shows how large numbers of individuals with low
+social impact outnumber those with high social impact, but those with
+high social impact impose the structure and determine the growth of
+the group of individuals. 
+
+We hope that by introducing a more formal notion of social interaction
+as a genotype we might model exactly how mathematical problems get
+solved. Indeed it may be possible in the future to encode the problems
+themselves in the cells and to see how a group of individuals can
+solve the problems as a society.
+
+% JOE - my hands are flailing violently
+
+%\textbf{[Ewen please add 1/4 to 3/4 pp. here].}
+
+%% \begin{figure}
+%% \begin{center}
+%% \includegraphics[width=\columnwidth]{initial2d.jpg}
+%% (A)\\ \medskip
+%% \includegraphics[width=\columnwidth]{3002d.jpg}
+%% (B)\\ \medskip
+%% \includegraphics[width=\columnwidth]{30002d.jpg}
+%% (C)\\ \medskip
+%% \includegraphics[width=\columnwidth]{300002d.jpg}
+%% (D)\\
+%% \end{center}
+%% \caption{Two dimensional cellular automaton built using blending
+%%   dynamics: (A) Initial state; (B-D) Evolution over time}
+%% \end{figure}
+
+%\newpage
 
 \section{Discussion}
 
