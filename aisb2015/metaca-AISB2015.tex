@@ -1,7 +1,8 @@
 \documentclass{AISB2008}
 \usepackage{newfloat}
-\DeclareFloatingEnvironment[fileext=frm,placement={!ht},name=Listing]{listing}
+\DeclareFloatingEnvironment[fileext=frm,name=Listing]{listing}
 \usepackage{placeins}
+\usepackage{float}
 \usepackage{listings}
 
 
@@ -12,6 +13,13 @@
 \usepackage{times}
 \usepackage{graphicx}
 \usepackage{latexsym}
+
+\newcommand*{\sourceatright}[1]{\unskip\hspace{1em plus 1fill}%
+\nolinebreak[3]\hspace*{\fill}\mbox{#1}}%LaTeX Hacks 
+
+\usepackage{chngcntr}
+\counterwithout{figure}{section}
+\counterwithout{figure}{subsection}
 
 \usepackage{amsmath}
 
@@ -50,15 +58,16 @@ Ewen Maclean
 
 \begin{abstract}
 We define and explore in simulation several rules for the local
-evolution of cellular automata.
+evolution of generative rules for 1D and 2D cellular automata.  Our
+implementation uses strategies from conceptual blending.  We discuss
+potential applications to modelling social dynamics.
 \end{abstract}
 
 \section{Introduction}
 
 This paper takes a local approach to studying the evolution of
-cellular automata, following on the global approach of
-\cite{pavlic2014self}.  These authors present a system they call
-PICARD, for ``PICARD Implements CA Rules Differently.''
+cellular automata, following on the global approach of ``PICARD''
+\cite{pavlic2014self}.
 
 \begin{quote}
 \emph{Like a traditional one-dimensional CA, PICARD executions move
@@ -66,18 +75,20 @@ PICARD, for ``PICARD Implements CA Rules Differently.''
   traditional CA's require the rule to be static and externally
   specified, PICARD infers the iteration rule from the current state
   of the CA itself.}
+\sourceatright{\cite[pp. 1--2]{pavlic2014self}}
 \end{quote}
 
 PICARD's inferred rule is derived from the current state of the CA by
 a global characteristics, such as the number of 1's in the CA's
-current state (modulo 256), or the density $\rho$ of 1's (normalized
+current state (modulo 256), or the density $\rho$ of 1's (normalised
 as $\rho/256$).  These global criteria are similar to Van Valen's
 theory of resource density as an ``incompressible gel'' \cite{van1973new}.
-This sort of global criterion breaks the local-information assumption
-for which CAs are best known.
 
 In the current paper we introduce the notion of a MetaCA, in which CA
 rules are derived locally at each cell within the CA as it runs.
+Examples appear in Figure \ref{metaca-taster}.  Here, each colour
+represents one of the 256 standard one-dimensional CA rules.  States
+evolve locally, according to globally-defined dynamics.
 
 \begin{figure}
 \includegraphics[width=\columnwidth]{metaca.png}
@@ -90,88 +101,146 @@ rules are derived locally at each cell within the CA as it runs.
 
 \subsection{Cellular Automata}
 
-\input{background-ca}
+A crucial development in the history of CA research was the proof
+\cite{cook2004universality} that certain CA rules are Turing complete
+(in particular, Rule 110 in Wolfram's numbering system
+\cite{wolfram1994cellular} enjoys this property).
+
+Earlier classic works
+\cite{langton1990computation,mitchell1993revisiting,packard1988adaptation}
+exploring related ``edge of chaos'' effects.  In
+\cite{packard1988adaptation,mitchell1993revisiting,mitchell1994evolving},
+genetic algorithms are used to search the space of CA rules via
+crossover and mutation.  This sort of evolution is global and is
+connected with the CA rule by a derived parameter, ``Langton's
+$\lambda$'' (cf. \cite{langton1990computation}).  An overview of the
+``EvCA'' programme is presented in \cite{hordijk2013evca}.
+
+Closest to the work presented here is \cite{sipper1997evolution},
+which introduces the paradigm of \emph{cellular programming}.  As the
+name indicates, this approach is a fusion of ideas from cellular
+automata and genetic programming.
+\begin{quote}
+\emph{As opposed to the standard genetic algorithm, where a population
+  of independent problem solutions globally evolves, our approach
+  involves a grid of rules that coevolves locally.}
+\sourceatright{\cite[p. 74]{sipper1997evolution}}
+\end{quote}
+In cellular programming, local evolution of the CA rule makes use of a
+local ``fitness'' (\cite[pp. 79--81]{sipper1997evolution}), as the
+systems are evolved to perform certain global computational tasks.
+
+In the current effort, although we are interested in behaviour that
+tends towards edge-of-chaos effects, system evolution is not directly
+guided by a specific fitness criterion, but only by variations on the
+``crossover'' mechanism.
+
+One early application of cellular programming was to evolutionary game
+theory, a field with natural parallels
+(cf.~\cite{nowak1992evolutionary}).  We will not consider game
+theoretic approaches in this work, despite being inspired by the
+social metaphors that are involved (e.g.~\cite{nowak2006five}).  In
+our thinking we often switch between conceptual/symbolic,
+social/ethical, biological/genetic, and physical/geometric metaphors.
+
+In this connection it is worth mentioning some recent work
+\cite{goerg2012licors,goerg2012mixed} that continues in the earlier
+tradition of the EvCA project (cf. \cite{hordijk2001upper}), making
+use of a relativistic ``light cone'' analysis to identify structure in
+CAs.  The current paper does not pursue any detailed \emph{post hoc}
+analysis of CA behaviour, although we plan to explore this further in
+subsequent work.  Finally, although not focusing on CAs per se,
+\cite{hofstadter1995prolegomena} outlines a set of criteria for the
+design of systems that exhibit ``emergent'' intelligence which helped
+to motivate the present effort.
+
 
 \subsection{Conceptual Blending} \label{sec:blend}
 
 One of our inspirations for working with cellular automata is that we
-have been involved with a research project that studies computational
-blending \cite{schorlemmer2014coinvent}, and CAs seem to do a very
-simple kind of blending already.  That is, they consider the value of
-neighbouring cells, and produce a result that combines these results
-to produce the next generation (in some suitably abstract sense).  We
-were also inspired by the idea of ``blending'' ordered and chaotic
-behaviour to produce edge-of-chaos effects.
+are involved with a research project that studies computational
+blending \cite{schorlemmer2014coinvent}, and cellular automata seem to
+offer a very simple example of blending behaviour.  That is, they
+consider the value of neighbouring cells, and produce a result that
+``combines'' these results (in some suitably abstract sense) in order
+to produce the next generation.  We were also inspired by the idea of
+``blending'' ordered and chaotic behaviour to produce edge-of-chaos
+effects.
 
-Following the approach of Goguen \cite{gog05}, we propose exploiting
-existing formalisms of blending in the context of cellular automata to
-investigate emergent and novel behaviours. The fundamental building blocks used in calculating concept or theory blends are
+We propose to exploit existing formalisms of blending (in the style of
+Goguen \cite{gog05}) in the context of cellular automata to
+investigate emergent and novel behaviours.  The fundamental building
+blocks used in calculating concept or theory blends are:
 \begin{description}
-\item[Input Concepts] are the theories or concepts which have some degree of commonality, which is not necessarily syntactic. 
+\item[Input Concepts] are the concepts or theories which are understood have some degree of commonality (syntactic or semantic). 
 \item[Signature Morphism] is a definition of how symbols are mapped between theories or concepts. 
 \item[Generic Space] is the space which contains a theory which is common to both input theories.
 \item[Blend] is the space computed by combining both theories. The computation is computed using a ``pushout'' from the underlying categorical semantics \cite{MossakowskiEA06}. 
 \end{description}
 
-Once a blend has been computed, it may represent a concept which is in some way inconsistent. Equally it may represent a concept which is in some way incomplete. We can then either weaken an input teory or refine the blend:
+Once a blend has been computed, it may represent a concept which is in
+some way inconsistent. Equally it may represent a concept which is in
+some way incomplete. We can then either weaken an input theory, or
+refine the blend:
 \begin{description}
 \item[Weakening] Given an inconsistent blend it is possible to weaken the input concept in order to produce a consistent blend. Weakening means removing symbols or axioms from the input concept.
 \item[Refinement] Given a blend which represents a concept which is in some way incomplete, it is possible to refine the concept by adding symbols or axioms.
 \end{description}
 
-This paper presents an example of concepts to which the blending
-process applies. In general the notion of a signature morphism allows
-input concepts expressed in different languages to be blended. In this
-paper the examples shown have input concepts expressed in the same
-language, and indeed have the same specification. This means that the
-morphisms are not interesting and the calculated pushout could be
-computed without utilising the full machinery of the category theory
-provided by HETS. However, as discussed in \S\ref{sec:mgeno}, future work
-will explore the idea of combining rules for cellular automata which
-may have entirely different techniques for expressing propagation. It
-is for this reason that we exploit the HETS system to compute the
-blends within the systems we use. We describe the existing components
-of blending in the context of cellular automata in Sections
-\ref{introducing-blending} and \ref{2d-experiments-design}.
+This paper presents several examples of simple concepts to which the
+blending process applies. In general the notion of a signature
+morphism allows input concepts expressed in different languages to be
+blended. In this paper the examples shown have input concepts
+expressed in the same language, and indeed have the same
+specification. This means that the morphisms are not interesting and
+the calculated pushout could be computed without utilising the full
+machinery of category theory.  Planned extensions will explore the
+idea of combining rules for cellular automata which may have entirely
+different techniques for expressing propagation.  For this reason, we
+target the Heterogeneous Tool Set (HETS) system
+\cite{mossakowski2007heterogeneous} as an infrastructure for computing
+blends.  We describe our current approach to blending in the context
+of cellular automata in Sections \ref{introducing-blending} and
+\ref{2d-experiments-design}.
 
 % \clearpage
 
 \section{Implementation}
 %%%% describe genotype/phenotype definition?
 
-
 %%%% section header?
 \subsection{Generating Genotypes} \label{sec:geno}
 
-To explain how this works, consider the following example.  Each
-elementary CA rule defines a mapping from all eight strings of 0's and
-1's to the set \{0,1\}.  Thus, for example the rule 01010100 is defined as the following operation:
+Each elementary CA rule defines a mapping from all eight strings of
+0's and 1's to the set \{0,1\}.  Thus, for example the rule \textbf{01010100}
+is defined as the following operation:
 \begin{lstlisting}[mathescape]
-0 0 0 $\mapsto$ 0
-0 0 1 $\mapsto$ 1
-0 1 0 $\mapsto$ 0
-0 1 1 $\mapsto$ 1
-1 0 0 $\mapsto$ 0
-1 0 1 $\mapsto$ 1
-1 1 0 $\mapsto$ 0
-1 1 1 $\mapsto$ 0
+0 0 0 $\mapsto$ $\mathbf{0}$
+0 0 1 $\mapsto$ $\mathbf{1}$
+0 1 0 $\mapsto$ $\mathbf{0}$
+0 1 1 $\mapsto$ $\mathbf{1}$
+1 0 0 $\mapsto$ $\mathbf{0}$
+1 0 1 $\mapsto$ $\mathbf{1}$
+1 1 0 $\mapsto$ $\mathbf{0}$
+1 1 1 $\mapsto$ $\mathbf{0}$
 \end{lstlisting}
 %  $\text{\emph{Rule 84}}$ 
 %  ... Must double check the example, since I had a mistake in the truth table
 
 There are 256 of these rules; the example above is Rule 84 in
-Wolfram's numbering \cite{wolfram1994cellular}.  The basic concept of
-the MetaCA is to evolve a CA with 256 possible states -- rather than
-the traditional 2 -- where state now corresponds to a ``CA rule''.
-Then we can then apply this rule to decide the output for the next
-cell, depending also on the state of the neighbouring cells.  By
-positioning three CA rules next to each other, we define a
-multiplication by applying the central rule bitwise across the alleles.
+Wolfram's standard enumeration of 1D CAs \cite{wolfram1994cellular}.
+The basic concept of the MetaCA is to evolve a CA with 256 possible
+states -- rather than the traditional two -- where each state now
+corresponds to a ``CA rule''.  Then we can then apply this rule to
+decide the output for the next cell, depending also on the state of
+the neighbouring cells.  By positioning three CA rules next to each
+other, we define a multiplication by applying the central rule bitwise
+across the alleles.
 %
-For example, here is the result of multiplying $01101110\times
-01010100\times 01010101$.  In the context of such a multiplication, we
-refer to the central multiplicand as the ``local rule,'' and we
-highlight it in bold below.
+For example, here is the result of ``multiplying'' $01101110\times
+01010100\times 01010101$.  In the context of such an operation, we
+refer to the central term as the ``local rule,'' and we highlight it
+in bold below.
 
 \lstset{
   xleftmargin=.1\columnwidth, xrightmargin=.01\columnwidth
@@ -188,9 +257,10 @@ highlight it in bold below.
 0 $\mathbf{0}$ 1     $1$     $\text{\emph{Apply local rule to ``001''}}$
 \end{lstlisting}
 
-Realised in a simulation, the results are not particularly impressive:
-they stabilise early and do not produce any interesting patterns
-(Figure \ref{barcode}).
+Realised in a simulation with random starting conditions, the results
+of this operation are not particularly impressive: they stabilise
+early and do not produce any interesting patterns (Figure
+\ref{barcode}).
 
 \begin{figure}
 \includegraphics[width=\columnwidth,trim = 135mm 177mm 0mm 0mm,clip=true]{paint-drips.png}
@@ -207,9 +277,9 @@ they stabilise early and do not produce any interesting patterns
 The blending variant says to first compute the ``generic space'' by
 noting the alleles where the two adjacent neighbours are the same, and
 where they differ.  Only when the generic space retains some ambiguity
-(indicated by $\{0,1\}$), we apply the local rule (again recorded on
-the centre cell at left and highlighted in bold) in a bitwise manner
-across each allele, to arrive at the final result.
+(indicated by $\{0,1\}$) do we apply the local rule (again recorded
+on the centre cell at left and highlighted in bold) in a bitwise
+manner across each allele, to arrive at the final result.
 
 \lstset{
   xleftmargin=.05\columnwidth, xrightmargin=.01\columnwidth
@@ -227,15 +297,11 @@ across each allele, to arrive at the final result.
 \end{lstlisting}
 
 For illustrative purposes, this blend has been formalised in the HETS
-system \cite{mossakowski2007heterogeneous} by introducing CASL files
-to represent the 8 bit encodings (Listing \ref{CASL-listing}, and corresponding development graph shown in Figure \ref{fig:hetsblend}). 
+system by introducing CASL files to represent the 8 bit encodings
+(Listing \ref{CASL-listing}, and corresponding development graph shown
+in Figure \ref{fig:hetsblend}).
 %
-\begin{figure}[!ht]
-\includegraphics[width=0.45\textwidth]{dol_dev.pdf}
-\label{fig:hetsblend}
-\caption{The development graph for calculating a blend of 8 bit encodings}
-\end{figure}
-%
+
 The computed blend is inconsistent as there is not a unique value
 representing the output value of each function.  In order to resolve
 this we weaken the input rules in CASL by removing the function values
@@ -245,6 +311,11 @@ Note that purposes of efficiency, we have implemented our 1D
 experiments in LISP rather than in \mbox{HETS}/\mbox{CASL}.  We've put
 the working code on
 Github\footnote{\url{https://github.com/holtzermann17/metaca}}.
+
+\begin{figure}[!ht]
+\includegraphics[width=0.45\textwidth]{dol_dev.pdf}
+\caption{The development graph for calculating a blend of 8 bit encodings\label{fig:hetsblend}}
+\end{figure}
 
 %%%% the CASL latex is now in a Listing environment below
 
@@ -258,21 +329,22 @@ Github\footnote{\url{https://github.com/holtzermann17/metaca}}.
 %% are alive.  This standard case is illustrated in Figure
 %% \ref{conway-rule}.
 
-\subsubsection{Localised propagation} \label{sec:2dlocal}
-In order to extend the ideas presented so far in the 1-d case, let us
+% \subsubsection{Localised propagation} \label{sec:2dlocal}
+
+In order to extend the ideas presented so far in the 1D case, let us
 consider a variant of Conway's Game of Life \cite{conway}, in which a
-global rule exists defining whether a square is alive or dead. We
+global rule exists defining whether a square is alive or dead.  We
 extend this by introducing the notion of a local rule at each square
--- a genotype, which governs the propagation of the phenotype. 
+-- a genotype, which governs the propagation of the phenotype.
 
 In Conway's Game of life, one can view the rules for propagation as
-partitions on a finite length line (0-8), and correspond to the {\em
-  genotype} described in \S\ref{sec:geno}:
+partitions on a finite interval $[0,8]$.
 \begin{center}
 \includegraphics[width=0.45\textwidth]{conway.pdf}
 \end{center}
 The number on the line corresponds to the number of alive neighbours
-to a square. If the square is dead then it becomes alive (labelled
+adjacent, in cardinal and inter-cardinal directions, to a given
+square. If the square is dead then it becomes alive (labelled
 reproduce) if the number of alive neighbours is exactly three. If
 there are five or more alive neighbours the square dies from
 overcrowding. If there are fewer than three alive neighbours the
@@ -293,51 +365,164 @@ maintains its status.
 %% \end{figure}
 
 This can be generalised to partitions within a more finely grained
-line, for example from 0 to 1000, one creates a genotype $\{x,y,z\}$:
+line, for example from 0 to 1000, one creates a genotype $(x,y,z)$:
 \begin{center}
 \includegraphics[width=0.45\textwidth]{2dgenotype.pdf}
 \end{center}
-Now of course simply summing the number of alive neighbours is
-not interesting. Instead we introduce the notion of a {\em weight} to
-each cell. The {\em phenotype} of the cell is then a pair $\{alive, weight\}$ of elements, which denote whether the cell is alive, and what weight is has. For this presentation we always calculate a newly propagated weight as the average of the neighbours' weights.
-
+We introduce the corresponding notion of a {\em weight} for each cell.
+The {\em phenotype} of the cell is then a pair $(\text{\emph{alive}},
+\text{\emph{weight}})$ which denotes whether the cell is alive, and
+what weight is has.  In this paper we always calculate a newly
+propagated weight as the average of the neighbours' weights.
 
 The notion of local propagation is introduced by allowing the
-genotypes to be blended at each point that a cell remains or becomes
-alive. In this case as we have represented the genotype as a
-partitioned line, we can, for example perform a blend where the
-partition is blended in such a way as the minimise the lowest bound
-and maximise the highest bound, and maximise the interval for
-reproduction. Given two genotypes $(x_1, y_1,
-z_1)$ and $(x_2, y_2, z_2)$, the blend is $(\mathrm{min} \{x_1,x_2\},
-\mathrm{max} \{y_1,y_2\}, \mathrm{max} \{z_1,z_2\})$
+genotypes to be blended at each point where a cell remains or becomes
+alive.  As we have represented the genotype as a partitioned line, we
+can, for example perform a blend where the partition is blended in
+such a way as the minimise the lowest bound and maximise the highest
+bound, and maximise the interval for reproduction.  Given two
+genotypes $(x_1, y_1, z_1)$ and $(x_2, y_2, z_2)$, the blend is
+$(\mathrm{min} \{x_1,x_2\}, \mathrm{max} \{y_1,y_2\}, \mathrm{max}
+\{z_1,z_2\})$
 \begin{center}
 \includegraphics[width=0.45\textwidth]{2dgenotypeblend.pdf}
 \end{center}
-This is just one of several possible blend types which we refer to as a {\em union} blend, as it maximises the partitions which pertain to survival. 
 
-To see the behaviour
-of the union blend in action consider an initially populated grid, where
-colours represent the weights of alive cells:
+Note that this is just one of several possible blending strategies,
+which we refer to as a {\em union} blend, since it maximises the
+partitions which pertain to survival.  We consider alternative blends
+in our experiments.
+
+%% \begin{figure}[!ht]
+%% \includegraphics[width=\columnwidth]{2dgenotypeblend}
+%% \caption{Defining blending dynamics for 2D genotypes\label{blending-2d-rule}}
+%% \end{figure}
+
+% \clearpage
+
+\section{Results}
+\subsection{1D CAs} \label{1d-results}
+
+One of the first things we noticed was that even though the blending
+dynamic creates more interesting ``CA-like'' patterns than simple
+evolution according to the local rule (as illustrated in Figure
+\ref{metaca-taster}), it also forms stable bands after this
+interesting initial period.  In Figure \ref{flag}, this is illustrated
+in a CA running with 500 cells over 500 generations.  Figure
+\ref{flag} also includes a phenotype (in black and white) which is
+driven entirely by the genotype: that is, if the local genotype is
+\boxed{\alpha\mystrut}\boxed{\beta\mystrut}\boxed{\gamma\mystrut} 
+where $\alpha, \beta, \gamma \in \{0,1\}^8$
+and the local phenotype is
+%
+\boxed{a\mystrut}\boxed{b\mystrut}\boxed{c\mystrut}
+where $a, b, c \in \{0,1\}$,
+%
+then the genotype evolves locally according to the meta-rule $\alpha
+\times \beta \times \gamma$ (in the blending variant) while the
+phenotype evolves by applying the local rule $\beta$ to the data
+``$abc$.''
+
+\begin{figure}
+\includegraphics[width=\columnwidth]{flag.png}
+\caption{Phenotype with behaviour determined by genotype\label{flag}}
+\end{figure}
+
+In the phenotype layer, we see a few bands with interesting patterns,
+where the MetaCA at left has stabilised locally into one of the more
+interesting CA rules.  However, the long term evolution is not
+particularly interesting: the structure observed in Figure
+\ref{metaca-taster} disappears quickly.
+
+We therefore decided to introduce random mutations to the genotype,
+illustrated in Figures \ref{random-mutation}--\ref{seti}.  With a high
+mutation rate, both genotype and phenotype are almost reduced to
+confetti.  If we reduce the mutation rate sufficiently, some degree of
+stability is preserved, and the vertically striped bands are
+transformed into intermingling swaths of colour (Figure
+\ref{lower-rate}).  We also see areas with more finely-grained
+structure in the phenotype layer.  
+
+In Figure \ref{seti}, the colour-coded genotype layer has been
+replaced with a greyscale coding, and we see more clearly how the
+phenotype behaviour follows that of the genotype.  That is, genotypes
+similar to Rule 0 (00000000) or Rule 256 (11111111) tend to produce 0
+or 1, respectively, in the phenotype layer.  Rules that output a blend
+of 0's and 1's are mapped to grey shades.  Several interesting rules
+(Rule 110, Rule 30, Rule 90, Rule 184, and their reversals, bitwise
+inverses, and inverted-reversals) are highlighted in colour.  In
+particular, Rule 110 variants are highlighted in red.
+
+%% \begin{figure}
+%% \includegraphics[width=\columnwidth]{baldwin.png}
+%% \caption{Introducing a Baldwin effect}
+%% \end{figure}
+
+\begin{figure}
+\includegraphics[width=\columnwidth]{big.png}
+\caption{A high rate of mutation produces tantalising random structures \label{random-mutation}}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\columnwidth]{lamp-down-low.png}
+\caption{Throttling down the mutation rate preserves some of the large-scale stability while making room for variability \label{lower-rate}}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\columnwidth]{seti.png}
+\caption{The search for intelligent life in the computational universe \label{seti}}
+\end{figure}
+
+We observe that Rule 0 and Rule 256 behaviour tends to predominate.
+Grey areas appear to be semi-stable.  Red patches appear and
+disappear, as if independent planets evolve intelligent life and are
+then extinguished.  With this physics, ``intelligent life'' seems
+inevitable, but also inevitably short-lived.  One would have to look
+for another overall physics for intelligent behaviour to predominate.
+
+A potential indication of the direction to look in is presented in
+Figure \ref{reef}, which presents CAs generated by adjusting the
+typical blending evolution pattern by an (erroneously-programmed)
+mutation rule that only flips the first bit.  We see that long-term
+behaviour in the genotype flutters randomly between Rule 0 (00000000)
+and Rule 128 (10000000).  The short-term behaviour in the phenotype is
+nevertheless quite interesting, exhibiting many of the familiar
+lifelike edge-of-chaos patterns before ultimately succumbing to a
+version of Newton's First Law.
+
+\begin{figure}
+\includegraphics[width=\columnwidth]{reef.png} \newline
+\includegraphics[width=\columnwidth]{eoc.png} 
+\caption{A skewed mutation pattern \label{reef}}
+\end{figure}
+
+\subsection{2D CAs} \label{2d-results}
+
+To see the behaviour of the union blend in action consider an
+initially populated grid, where colours represent the weights of alive
+cells:
  \begin{center}
  \includegraphics[width=0.45\textwidth]{initial2d.jpg}
  \end{center}
-For this example, we restrict the computation of the blend for a particular cell to only when the cell is alive in the next iteration. Also we compute the blend of genotype for all neiughbours - whether dead or alive. After 300 iterations this grows a small amount to
+For this example, we initially restrict the computation of the blend for a particular cell to take place when the cell is alive in the next iteration. Also we compute the blend of genotype for all neighbours, whether dead or alive.
+
+After 300 iterations the colony has grown a small amount:
  \begin{center}
  \includegraphics[width=0.45\textwidth]{3002d.jpg}
  \end{center}
-then the population grows with large patches of low-weight (black) cells
+Over time, the population continues to grow, with large patches of low-weight (black) cells:
  \begin{center}
  \includegraphics[width=0.45\textwidth]{30002d.jpg}
  \end{center}
-then finally some structure starts to appear in the clustering:
+Finally some structure starts to appear in the clustering:
  \begin{center}
  \includegraphics[width=0.45\textwidth]{300002d.jpg}
  \end{center}
 The propagation that follows shows a population of cells which grows
 slowly overtime. The majority of the members have low weight
 (represented by black squares), but interspersed within the population
-are squares with high weight (represented by red squares). 
+are chains of squares with high weight (represented by red squares)
+adjacent to dead cells (white).
 
 \subsubsection{Modified Blends}
 
@@ -345,11 +530,11 @@ So far we have only showed the union blend working on the genotype. However, it 
 \begin{itemize}
 \item{Consider blending only the genotypes of alive neighbours, or all neighbours;}
 \item{Consider only blending genotypes for cells which are alive after propagation;}
-\item{Consider an ``intersection'' blend, where the partition sizes for survival are minimised;}
-\item{Consider an ``average'' blend, where the values of each genotype $\{x_i,y_i,z_i\}$ are summed and divided by either the number of alive neighbours, or the total number of neighbours.}
+\item{Consider an \emph{intersection} blend, where the partition sizes for survival are minimised;}
+\item{Consider an \emph{average} blend, where the values of each genotype $(x_i,y_i,z_i)$ are summed and divided by either the number of alive neighbours, or the total number of neighbours.}
 \end{itemize}
 %% just union
-As an example of different observed emergent behaviour consider a union blend where the blend is only computed from alive neighbours, and as before we compute only for cells which are alive at the next iteration. We start with an initial state
+As an example of different observed emergent behaviour consider a union blend where the blend is only computed from alive neighbours, and as before we compute only for cells which are alive at the next iteration. We start with an initial state:
  \begin{center}
  \includegraphics[width=0.45\textwidth]{init2.jpg}
  \end{center}
@@ -357,9 +542,11 @@ and observe a changing, but relatively steady pattern (resembling the motion of 
  \begin{center}
  \includegraphics[width=0.45\textwidth]{init2_union.jpg}
  \end{center}
-\noindent where the weight characteristic of the phenotype of each cell has fallen to very low.
+\noindent where the weight characteristic of the phenotype of each
+cell has fallen to very low.
 
-Now consider applying instead an average blend under the same initial conditions:
+Finally, consider applying instead an average blend under the same
+initial conditions:
  \begin{center}
  \includegraphics[width=0.45\textwidth]{init2_average.jpg}
  \end{center}
@@ -367,30 +554,136 @@ Then we see a less steady but more active growth, with populations moving in tri
  \begin{center}
  \includegraphics[width=0.45\textwidth]{init2daverage++.jpg}
  \end{center}
-\noindent the fastly moving populations do not have a convergent weight characteristic of the phenotype, as in the case with the union blend for the same initial conditions. 
+\noindent the quickly-moving populations do not have a convergent weight characteristic of the phenotype, as in the case with the union blend for the same initial conditions. 
 
 
 %%intro intersec, average, and inhertiance criteria
 
-\subsubsection{Modified Genotypes} \label{sec:mgeno}
 
-As discussed in \S\ref{sec:blend}, it is possible to exploit existing
-machinery to calculate blends of genotypes which are expressed in very
-different languages. As an example consider a genotype which is
-defined as in \S\ref{sec:2dlocal}, and another which is defined by
-comparing the hue of just one neighbour. The blend is then a richer
-theory combining elements from both genotypes. The CASL file
-expressing these concepts is given in listing
-\ref{CASL-blend-listing}, and the resulting categorical diagram can be
-seen in Figure \ref{fig:2dblend}. Experiments with using more sophisticated
-genotypes and blends is ongoing work and is not presented here. 
-\begin{figure}[!ht]
+\FloatBarrier
+
+\begin{listing}[H]
+{\scriptsize
+\begin{hetcasl}
+\KW{library} \Id{metaca}\\
+\\
+\KW{logic} \SId{CASL}\\
+\\
+\SPEC \=\SIdIndex{METACABitencoding} \Ax{=}\\
+\> \KW{free} \KW{type} \=\Id{Bit} \Ax{:}\Ax{:}\=\Ax{=} \Ax{0} \AltBar{} \Ax{1}\\
+\> \SORT \Id{Triple}\\
+\> \OPS \=\Id{t} \Ax{:} \=\Id{Bit} \Ax{\times} \Id{Bit} \Ax{\times} \Id{Bit} \Ax{\rightarrow} \Id{Triple};\\
+\>\> \Id{bitop}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
+\KW{end}\\
+\\
+\%\% How to calculate a blend given three 8-bit genotypes\\
+\SPEC \=\SIdIndex{METACABitcalc} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\OP \=\Id{blend}\Ax{\_\_}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\times} \Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
+\> \Ax{\forall} \=\Id{t1}, \Id{t2}, \Id{t3} \Ax{:} \Id{Triple} \\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t1} \Ax{=} \Id{bitop} \Id{t2} \Ax{\Rightarrow} \=\Id{blend} \Id{t1} \Id{t2} \Ax{=} \Id{bitop} \Id{t1}\\
+\> \Ax{\bullet} \=\Ax{\neg} \=\Id{bitop} \Id{t1} \Ax{=} \Id{bitop} \Id{t2} \Ax{\Rightarrow} \=\Id{blend} \Id{t1} \Id{t2} \Ax{=} \Id{bitop} \Id{t3}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{LeftRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{RightRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{LocalRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\KW{end}\\
+\\
+\%\% Generic is common between left and right\\
+\SPEC \=\SIdIndex{Generic} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\%\% Morphism from Generic to Left\\
+\VIEW \=\SId{Left} \Ax{:} \=\SId{Generic} \KW{to} \SId{LeftRule}\\
+\KW{end}\\
+\\
+\%\% Morphism from Generic to Right\\
+\VIEW \=\SId{Right} \Ax{:} \=\SId{Generic} \KW{to} \SId{RightRule}\\
+\KW{end}\\
+\\
+\%\% This will be inconsistent\\
+\SPEC \=\SIdIndex{Blend} \Ax{=}\\
+\> \KW{combine} \=\Id{Left}, \Id{Right}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{WeakenedLeftRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\\
+\SPEC \=\SIdIndex{WeakenedRightRule} \Ax{=}\\
+\> \SId{METACABitencoding}\\
+\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
+\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
+\KW{end}\\
+\VIEW \=\SId{WeakenedLeft} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedLeftRule}\\
+\KW{end}\\
+\VIEW \=\SId{WeakenedRight} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedRightRule}\\
+\KW{end}\\
+\\
+\%\% A computed blend as new 8 bit encoding\\
+\SPEC \=\SIdIndex{ConsistentBlend} \Ax{=}\\
+\> \KW{combine} \=\Id{WeakenedLeft}, \Id{WeakenedRight}\\
+\AND \SId{METACABitcalc}\\
+\AND \SId{LocalRule}\\
+\KW{end}
+\end{hetcasl}
+}
+\caption{CASL source code listing calculating the running example $01101110\times 01010100\times 01010101$ via the blending meta-rule\label{CASL-listing}}
+\end{listing}
+
+\newpage
+\begin{figure}[H]
 \includegraphics[width=0.4\textwidth]{2dblend.pdf}
 \caption{Blending different 2d genotypes}
 \label{fig:2dblend}
 \end{figure}
 
-\begin{listing}
+\begin{listing}[H]
 {\scriptsize
 \begin{hetcasl}
 \KW{library} \Id{metaca2d}\\
@@ -446,13 +739,13 @@ genotypes and blends is ongoing work and is not presented here.
 \> \SId{Genencoding} \KW{to} \SId{Numericalencoding} \Ax{=} \\
 \> \Id{S} \Ax{\mapsto} \Id{Nat}, \Id{Genotype} \Ax{\mapsto} \Id{NGenotype}, \=\Id{blend} \Ax{\mapsto} \Id{numblend}\\
 \KW{end}\\
-{{}\KW{\%\%} A signature morphism from Generic to Colour}\\
 \\
+\\
+{{}\KW{\%\%} A signature morphism from Generic to Colour}\\
 \VIEW \=\SId{ColourSM} \Ax{:} \\
 \> \SId{Genencoding} \KW{to} \SId{Colourencoding} \Ax{=} \\
 \> \Id{S} \Ax{\mapsto} \Id{Colour}, \Id{Genotype} \Ax{\mapsto} \Id{CGenotype}, \=\Id{blend} \Ax{\mapsto} \Id{hueblend}\\
 \KW{end}\\
-{{}\KW{\%\%} Blend}\\
 \\
 \SPEC \=\SIdIndex{blend} \Ax{=}\\
 \> \KW{combine} \=\Id{NumericalSM}, \Id{ColourSM}\\
@@ -460,297 +753,64 @@ genotypes and blends is ongoing work and is not presented here.
 \end{hetcasl}
 
 }
-\caption{CASL source code for using signature morphisms and pushout
-  calculation to blend
-  genotypes with different languages.\label{CASL-blend-listing}}
+\caption{CASL source code using signature morphisms and pushout
+  calculation to blend genotypes with different
+  languages\label{CASL-blend-listing}}
 \end{listing}
 
-
-\begin{listing}
-{\scriptsize
-\begin{hetcasl}
-\KW{library} \Id{metaca}\\
-\\
-\KW{logic} \SId{CASL}\\
-\%\% The specification of 8 bit encoding\\
-\SPEC \=\SIdIndex{METACABitencoding} \Ax{=}\\
-\> \KW{free} \KW{type} \=\Id{Bit} \Ax{:}\Ax{:}\=\Ax{=} \Ax{0} \AltBar{} \Ax{1}\\
-\> \SORT \Id{Triple}\\
-\> \OPS \=\Id{t} \Ax{:} \=\Id{Bit} \Ax{\times} \Id{Bit} \Ax{\times} \Id{Bit} \Ax{\rightarrow} \Id{Triple};\\
-\>\> \Id{bitop}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
-\KW{end}\\
-\%\% The specification of how to calculate a blend given 3 encodings\\
-\SPEC \=\SIdIndex{METACABitcalc} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\OP \=\Id{blend}\Ax{\_\_}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\times} \Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
-\> \Ax{\forall} \=\Id{t1}, \Id{t2}, \Id{t3} \Ax{:} \Id{Triple} \\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t1} \Ax{=} \Id{bitop} \Id{t2} \Ax{\Rightarrow} \=\Id{blend} \Id{t1} \Id{t2} \Ax{=} \Id{bitop} \Id{t1}\\
-\> \Ax{\bullet} \=\Ax{\neg} \=\Id{bitop} \Id{t1} \Ax{=} \Id{bitop} \Id{t2} \Ax{\Rightarrow} \=\Id{blend} \Id{t1} \Id{t2} \Ax{=} \Id{bitop} \Id{t3}\\
-\KW{end}\\
-\%\% An example left encoding\\
-\SPEC \=\SIdIndex{LeftRule} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
-\KW{end}\\
-\%\% An example right encoding\\
-\SPEC \=\SIdIndex{RightRule} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
-\KW{end}\\
-\%\% An example local encoding\\
-\SPEC \=\SIdIndex{LocalRule} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
-\KW{end}\\
-\%\% Generic is common between left and right\\
-\SPEC \=\SIdIndex{Generic} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\KW{end}\\
-\%\% Morphism from Generic to Left\\
-\VIEW \=\SId{Left} \Ax{:} \=\SId{Generic} \KW{to} \SId{LeftRule}\\
-\KW{end}\\
-\%\% Morphism from Generic to Right\\
-\VIEW \=\SId{Right} \Ax{:} \=\SId{Generic} \KW{to} \SId{RightRule}\\
-\KW{end}\\
-\%\% The computed Blend\\
-\SPEC \=\SIdIndex{Blend} \Ax{=}\\
-\> \KW{combine} \=\Id{Left}, \Id{Right}\\
-\KW{end}\\
-\%\% A weakened left rule\\
-\SPEC \=\SIdIndex{WeakenedLeftRule} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{0}) \Ax{=} \Ax{1}\\
-\KW{end}\\
-\%\% A weakened right rule \\
-\SPEC \=\SIdIndex{WeakenedRightRule} \Ax{=}\\
-\> \SId{METACABitencoding}\\
-\THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
-\> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
-\KW{end}\\
-\VIEW \=\SId{WeakenedLeft} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedLeftRule}\\
-\KW{end}\\
-\VIEW \=\SId{WeakenedRight} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedRightRule}\\
-\KW{end}\\
-\%\% A computed blend as new 8 bit encoding
-\SPEC \=\SIdIndex{ConsistentBlend} \Ax{=}\\
-\> \KW{combine} \=\Id{WeakenedLeft}, \Id{WeakenedRight}\\
-\AND \SId{METACABitcalc}\\
-\AND \SId{LocalRule}\\
-\KW{end}
-\end{hetcasl}
-}
-\caption{CASL source code listing calculating the running example $01101110\times 01010100\times 01010101$ via the blending meta-rule\label{CASL-listing}}
-\end{listing}
-
-\newpage
-
-%% \begin{figure}[!ht]
-%% \includegraphics[width=\columnwidth]{2dgenotypeblend}
-%% \caption{Defining blending dynamics for 2D genotypes\label{blending-2d-rule}}
-%% \end{figure}
-
-% \clearpage
-
-\section{Results}
-\subsection{1D CAs} \label{1d-results}
-
-One of the first things we noticed was that even though the blending
-dynamic creates more interesting ``CA-like'' patterns than simple
-evolution according to the local rule (as illustrated in Figure
-\ref{metaca-taster}), it also forms stable bands after this
-interesting initial period.  In Figure \ref{flag}, this is illustrated
-in a CA running with 500 cells over 500 generations.  Figure
-\ref{flag} also includes a phenotype (in black and white) which is
-driven entirely by the genotype: that is, if the local genotype is
-\boxed{\alpha\mystrut}\boxed{\beta\mystrut}\boxed{\gamma\mystrut} 
-where $\alpha, \beta, \gamma \in \{0,1\}^8$
-and the local phenotype is
-%
-\boxed{a\mystrut}\boxed{b\mystrut}\boxed{c\mystrut}
-where $a, b, c \in \{0,1\}$
-%
-then the genotype evolves locally according to the meta-rule $\alpha
-\times \beta \times \gamma$ (in the blending variant described above)
-while the phenotype evolves by applying the local rule $\beta$ to the
-data ``$abc$.''
-
-\begin{figure}
-\includegraphics[width=\columnwidth]{flag.png}
-\caption{Phenotype with behaviour determined by genotype\label{flag}}
-\end{figure}
-
-In the phenotype layer, we see a few bands with interesting patterns,
-where the MetaCA at left has stabilised locally into one of the more
-interesting CA rules.  However, the long term evolution is not
-particularly interesting.  
-
-We therefore decided to introduce random mutations to the genotype,
-illustrated in Figures \ref{random-mutation}--\ref{seti}.  With a high
-mutation rate, both genotype and phenotype are almost reduced to
-confetti.  If we reduce the mutation rate sufficiently, some degree of
-stability is preserved, and the vertically striped bands are
-transformed into intermingling swaths of colour (Figure
-\ref{lower-rate}).  We also see areas with more finely-grained
-structure in the phenotype layer.  
-
-In Figure \ref{seti}, the colour-coded genotype layer has been
-replaced with a greyscale coding, and we see more clearly how the
-phenotype behaviour follows that of the genotype.  That is, genotypes
-similar to Rule 0 (00000000) or Rule 256 (11111111) tend to produce 0
-or 1, respectively, in the phenotype layer.  Rules that output a blend
-of 0's and 1's are mapped to grey shades.  Several interesting rules
-(Rule 110, Rule 30, Rule 90, Rule 184, and their reversals, bitwise
-inverses, and inverted-reversals) are highlighted in colour.  In
-particular, Rule 110 variants are highlighted in red.
-
-%% \begin{figure}
-%% \includegraphics[width=\columnwidth]{baldwin.png}
-%% \caption{Introducing a Baldwin effect}
-%% \end{figure}
-
-\begin{figure}
-\includegraphics[width=\columnwidth]{big.png}
-\caption{A high rate of mutation produces tantalising random structures \label{random-mutation}}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=\columnwidth]{lamp-down-low.png}
-\caption{Throttling down the mutation rate preserves some of the large-scale stability while making room for variability \label{lower-rate}}
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=\columnwidth]{seti.png}
-\caption{The search for intelligent life in the computational universe \label{seti}}
-\end{figure}
-
-We observe that Rule 0 and Rule 256-like behaviour tends to
-predominate.  Grey areas appear to be semi-stable.  Red patches appear
-and disappear, as if independent planets evolve intelligent life and
-are then extinguished.  With this physics, ``intelligent life'' seems
-inevitable, but also inevitably short-lived.  One would have to look
-for another overall physics for intelligent behaviour to predominate.
-
-A potential indication of the direction to look in is presented in
-Figure \ref{reef}, which presents CAs generated by adjusting the
-typical blending evolution pattern by an (erroneously-programmed)
-mutation rule that only flips the first bit.  We see that long-term
-behaviour in the genotype flutters randomly between Rule 0 (00000000)
-and Rule 128 (10000000).  The short-term behaviour in the phenotype is
-nevertheless quite interesting, exhibiting many of the familiar
-lifelike edge-of-chaos patterns before ultimately succombing to a
-version of Newton's First Law.
-
-\begin{figure}
-\includegraphics[width=\columnwidth]{reef.png} \newline
-\includegraphics[width=\columnwidth]{eoc.png} 
-\caption{A skewed mutation pattern \label{reef}}
-\end{figure}
-
-\subsection{2D CAs} \label{2d-results}
-
-\subsubsection{Research Contribution}
-
-The results of the experiments on two dimensional cellular automata
-are purely observational at present. The motivations of combining a
-notion of blending with cellular automata was to investigate ways in
-which cellular automata could be used to model processes, where
-propagation rules, or genotypes, were locally defined. The main
-research contributions in the field of two dimensional cellular
-automata are
-\begin{itemize}
-\item build an implementational framework where local propagation
-  experiments can be performed;
-\item use the HETS system to show that the notion of blending can be
-  used to invent new propagation rules for different genotypes;
-\item invent simply definable genotypes and blends of these genotypes
-  to show proof of concept, and to be consistent with the research of
-  one dimensional cellular automata.
-\end{itemize}
-
-Our intitial findings are that interesting behaviour can be observed
-even given simple numerical genotypes. 
-
-\subsubsection{Social Interpretation}
-
-One can view the propagation of cells in a two dimensional cellular
-automaton as social process, and blending as a transfer of
-knowledge. In future work we would like to formalise in HETS the
-mechanisms of social knowledge sharing and problem solving in the
-field of mathematics. One can see already from a simple point of view
-that a population of cells such as those shown in \S\ref{sec:2dlocal}
-represents individuals with high social impact (high weight), and those
-with low knowledge or social impact (low weight). The propagation in
-the ``union'' blend shows how large numbers of individuals with low
-social impact outnumber those with high social impact, but those with
-high social impact impose the structure and determine the growth of
-the group of individuals. 
-
-We hope that by introducing a more formal notion of social interaction
-as a genotype we might model exactly how mathematical problems get
-solved. Indeed it may be possible in the future to encode the problems
-themselves in the cells and to see how a group of individuals can
-solve the problems as a society.
-
-% JOE - my hands are flailing violently
-
-%\textbf{[Ewen please add 1/4 to 3/4 pp. here].}
-
-%% \begin{figure}
-%% \begin{center}
-%% \includegraphics[width=\columnwidth]{initial2d.jpg}
-%% (A)\\ \medskip
-%% \includegraphics[width=\columnwidth]{3002d.jpg}
-%% (B)\\ \medskip
-%% \includegraphics[width=\columnwidth]{30002d.jpg}
-%% (C)\\ \medskip
-%% \includegraphics[width=\columnwidth]{300002d.jpg}
-%% (D)\\
-%% \end{center}
-%% \caption{Two dimensional cellular automaton built using blending
-%%   dynamics: (A) Initial state; (B-D) Evolution over time}
-%% \end{figure}
-
-%\newpage
+\FloatBarrier
 
 \section{Discussion}
 
-The early experiments seemed to provide visual evidence that blending
-is very useful: Figure \ref{metaca-taster} was much more interesting
-than Figure \ref{barcode}.  The blending rule seems itself to be a
+\subsection{Research Contribution}
+
+The motivation for combining a notion of blending with cellular
+automata was to investigate ways in which cellular automata could be
+used to model processes, where propagation rules, or genotypes, were
+locally defined.  The main research contributions in the field of two
+dimensional cellular automata are
+\begin{itemize}
+\item We built and implemented a framework where local propagation
+  experiments can be performed;
+\item We used the HETS system to show that the notion of blending can
+  be used to invent new propagation rules for different genotypes;
+\item We invented simply definable genotypes and blends of these
+  genotypes to show proof of concept;
+\item Finally, we shared the results of simulations that illustrate
+  qualitative behaviour in one and two dimensional MetaCAs.
+\end{itemize}
+
+The primary limitation of this work is that our results are purely
+observational at present.  For example, the early experiments seemed
+to provide visual evidence that blending is useful: Figure
+\ref{metaca-taster} more interesting than Figure \ref{barcode}.  The
+robustness of our qualitative findings have been supported by
+developing a range of different experiments, for example, some analogy
+could be drawn between the ``grey areas'' observed in Figure
+\ref{seti} for the 1D case and the red-and-white chains that develop
+in the 2D case under union blending.
+
+Our results confirm the basic finding of CA research: interesting
+global behaviour can arise from simple rules governing local
+interactions, with the added twist the rules can also arise locally.
+The MetaCA setting seems to offer fertile ground for further
+computational research into evolutionary and co-evolutionary effects.
+
+\subsection{Social Interpretation}
+
+One can view the propagation of cells and patterns in a 1D or 2D
+MetaCA as a social process, and blending as a knowledge exchange.  In
+the 2D case, we can think of the generated diagrams as illustrations
+of interactions between individuals with high knowledge, skill, or
+social impact (high weight), and those with less (low weight).  The
+propagation in the ``union'' blend shows how large numbers of
+individuals with low social impact outnumber those with high social
+impact, but those with high social impact impose the emergent
+structure and determine the growth of the group of individuals.
+
+In a fundamental respect our blending rules seem to embody a
 thought-provoking blend of two very different kinds of ``ethics.''
-Specifically, blending seems to introduce a dynamic similar to Carol
+Specifically: blending seems to introduce a dynamic similar to Carol
 Gilligan's \emph{ethic of care} \cite{gilligan1982different}, which
 seeks to defend the relationships that obtain in a given situation.
 Here this is manifested by the question ``Have my neighbours already
@@ -758,16 +818,15 @@ formed a consensus?''  This behaviour augments and extends the local
 rule, which would correspond to Lawrence Kohlberg’s \emph{ethic of
   justice} (cf. \cite{benhabib1985generalized}).
 
-However, as we saw in Section \ref{1d-results}, we would have to work
-harder to find meta-rules that give rise to an ``intelligent
-universe'' or in which life (considered as symbolic computation) plays
-an obvious negentropic role, \emph{apr\`es} Bergson
-\cite{bergson1912creative}.
+As we saw in Section \ref{1d-results}, we would have to work harder to
+find meta-rules that give rise to an ``intelligent universe'' or in
+which life (considered as symbolic computation) plays an obvious
+negentropic role (\emph{apr\`es} Bergson \cite{bergson1912creative}).
 
-One strategy that has not been fully exploited here would be to make
-use of a ``Baldwin effect'' \cite{baldwin-effect,weber2003evolution},
-to use ``learning'' (considered as entropy) in the phenotype layer to
-drive evolution.  More specifically,
+One strategy that has not been developed here would be to make use of
+a ``Baldwin effect'' \cite{baldwin-effect,weber2003evolution}, to use
+``learning'' (considered as entropy) in the phenotype layer to drive
+evolution.  More specifically,
 \boxed{0\mystrut}\boxed{0\mystrut}\boxed{0\mystrut} $\mapsto$
 \boxed{0\mystrut} and
 \boxed{1\mystrut}\boxed{1\mystrut}\boxed{1\mystrut} $\mapsto$
@@ -776,14 +835,17 @@ they are also hard to resist under the blending dynamics as we've
 defined them (compare Figures \ref{flag} and \ref{seti}).  Can we find
 ways to select against them?
 
-One observes that under our blending rule, these behaviours tend to
-selected for, not against, because they are examples of the
-``neighbours match'' condition.  Indeed, reviewing the essential
-features of blending in the 1D case, we can use our basic principles
+\subsection{Planned extensions}
+
+One observes that under our blending rule, the two non-entropic
+behaviours listed above tend to selected for, not against, because
+they are examples of the ``neighbours match'' condition.  Indeed,
+reviewing the essential features of blending in the 1D case, we can
+use our basic principles:
 
 \begin{quote}
- \emph{If neighbours match:} \emph{then use their shared value as the result.}\\
- \emph{If neighbours don't match:} \emph{then use local logic to get the result.}
+``\emph{If neighbours match:} \emph{use their shared value as the result.}\\
+ \emph{If neighbours don't match:} \emph{use local logic to get the result.}''
 \end{quote}
 
 \noindent to define a 1D CA rule, if we interpret ``local logic'' to
@@ -843,17 +905,41 @@ along with a ``variation''\footnote{%
 \boxed{0\mystrut} and the bitwise inverses of these.  A wider class of
 templates could calculated from arbitrary phenotype data by the same
 operations.  What we would lose in abandoning the intuition associated
-with local blending, we may be repayed through a much more abstract
+with local blending, we may be repaid through a much more abstract
 but richer procedural blend, operating at the level of
 genotype+phenotype evolution.  At the very least, we can point to a
 generic space, namely the locked-in local rule which would be carried
 over (along with its variants) from the phenotype to the corresponding
 alleles.
 
-This sort of system co-evolution has been understood to be relevant
-from both a philosophical \cite{mead1932philosophy} and empirical
-perspective \cite{van1973new}.  It presents a fertile ground for
-further computational research.
+As a simple example of cross-domain blending consider a genotype
+defined as in \S\ref{2d-experiments-design}, and another which is
+defined by comparing the hue of just one neighbour.  Their blend is a
+richer theory combining elements from both genotypes.  CASL code
+expressing these concepts is given in Listing
+\ref{CASL-blend-listing}, and the resulting categorical diagram can be
+seen in Figure \ref{fig:2dblend}.  Experimentation with more
+sophisticated genotypes and blends is ongoing.
+
+\subsection{Future work}
+
+Coevolution has been understood to be relevant from both a
+philosophical \cite{mead1932philosophy} and empirical perspective
+\cite{van1973new}.  Finding patterns that allow us to exploit Baldwin
+effects to drive the co-evolution of genotype and phenotype in the
+direction of intelligent behaviour is an interesting computational
+project.  The MetaCA domain may help to show how to systematise some
+aspects of the search for the principles and techniques that underlie
+broader computational intelligence.
+
+Expanding on the relatively simple domain of CAs, we would like to use
+HETS to formalise the mechanisms of social knowledge sharing and
+problem solving in fields like mathematics.  Indeed it may be possible
+in the future to encode mathematical problems in a MetaCA or cellular
+program and see how a group of agents can solve the problems as a
+society.  This would be informed by ongoing empirical analysis of real
+problem-solving activities \cite{eca} developed in parallel to the
+simulation work presented here.
 
 \section{Conclusion}
 % Some of the relevant references are below.
@@ -869,16 +955,16 @@ another offers a variant of that, a third brings in another idea from
 elsewhere and some combination is made.  The next day, things head in
 another direction completely.  Our progress in this research project
 has followed this sort of trajectory: from an initial critique of
-blending theory (``it's not dynamic enough!'') to some tentative
-examples showing how large-scale system dynamics can be driven by
-local behaviour in an emergent manner.  Perhaps the most exciting
+blending theory (``it's not dynamic enough to be social!'') to some
+tentative examples showing how large-scale system dynamics can be
+driven by local behaviour in an emergent manner.  Perhaps the most
 interesting aspect of this research is the relationship between these
 emergent dynamics and the meta-rules.  Whereas previous CA research
 has shown that complex global behaviour can be generated from a set of
 simple, local rules, this project gives an enticing glimpse of a
 future research programme that carries out a computational search for
 those very rules (out of the many possible) that lead to system
-behaviour we would recognize as ``intelligent.''
+behaviour we would recognise as ``intelligent.''
 
 \section{Acknowledgements}
 
