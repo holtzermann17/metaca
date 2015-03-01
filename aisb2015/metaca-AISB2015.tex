@@ -27,6 +27,13 @@
 \renewcommand{\boxed}[1]{\text{\fboxsep=.2em\fbox{\m@th$\displaystyle#1$}}}
 \makeatother
 
+\usepackage{xcolor}
+
+\makeatletter
+\newcommand{\woxed}[1]{\text{\fboxsep=.2em\fcolorbox{white}{white}{\m@th$\displaystyle#1$}}}
+\makeatother
+
+
 \newcommand{\mystrut}{\vphantom{b\gamma}}
 
 \usepackage{amsopn}
@@ -66,8 +73,8 @@ potential applications to modelling social dynamics.
 \section{Introduction}
 
 This paper takes a local approach to studying the evolution of
-cellular automata, following on the global approach of ``PICARD''
-\cite{pavlic2014self}.
+cellular automata (CA), following on the global approach of
+``PICARD'' \cite{pavlic2014self}.
 
 \begin{quote}
 \emph{Like a traditional one-dimensional CA, PICARD executions move
@@ -91,7 +98,7 @@ represents one of the 256 standard one-dimensional CA rules.  States
 evolve locally, according to globally-defined dynamics.
 
 \begin{figure}
-\includegraphics[width=\columnwidth]{metaca.png}
+\includegraphics[width=\columnwidth]{metaca2.png}
 \caption{An illustration of MetaCA evolution\label{metaca-taster}}
 \end{figure}
 
@@ -101,10 +108,33 @@ evolve locally, according to globally-defined dynamics.
 
 \subsection{Cellular Automata}
 
+Each elementary 1D CA rule defines a mapping from all eight strings of
+0's and 1's to the set \{0,1\}.  Thus, for example the rule \textbf{01010100}
+is defined as the following operation:
+\begin{lstlisting}[mathescape]
+0 0 0 $\mapsto$ $\mathbf{0}$
+0 0 1 $\mapsto$ $\mathbf{1}$
+0 1 0 $\mapsto$ $\mathbf{0}$
+0 1 1 $\mapsto$ $\mathbf{1}$
+1 0 0 $\mapsto$ $\mathbf{0}$
+1 0 1 $\mapsto$ $\mathbf{1}$
+1 1 0 $\mapsto$ $\mathbf{0}$
+1 1 1 $\mapsto$ $\mathbf{0}$
+\end{lstlisting}
+%  $\text{\emph{Rule 84}}$ 
+%  ... Must double check the example, since I had a mistake in the truth table
+
+The rules determine the next generation of a 1D CA locally, from three ``parents''.  In the example,
+\boxed{0\mystrut}\boxed{0\mystrut}\boxed{0\mystrut} $\mapsto$
+\boxed{0\mystrut} and
+\boxed{0\mystrut}\boxed{0\mystrut}\boxed{1\mystrut} $\mapsto$
+\boxed{1\mystrut} and so on.
+There are 256 of these rule tables; the example above is Rule 84 in
+Wolfram's standard enumeration \cite{wolfram1994cellular}.
 A crucial development in the history of CA research was the proof
 \cite{cook2004universality} that certain CA rules are Turing complete
-(in particular, Rule 110 in Wolfram's numbering system
-\cite{wolfram1994cellular} enjoys this property).
+(in particular, Rule 110 enjoys this
+property).
 
 Earlier classic works
 \cite{langton1990computation,mitchell1993revisiting,packard1988adaptation}
@@ -115,7 +145,8 @@ crossover and mutation.  This sort of evolution is global and is
 connected with the CA rule by a derived parameter, ``Langton's
 $\lambda$'' (cf. \cite{langton1990computation}).  An overview of the
 ``EvCA'' programme is presented in \cite{hordijk2013evca}.
-
+%
+CAs are also explored in two (and more) dimensions and with irregular topologies \cite{conway,flache2001irregular}; in this paper, we develop both 1D and 2D examples.
 Closest to the work presented here is \cite{sipper1997evolution},
 which introduces the paradigm of \emph{cellular programming}.  As the
 name indicates, this approach is a fusion of ideas from cellular
@@ -127,33 +158,64 @@ automata and genetic programming.
 \sourceatright{\cite[p. 74]{sipper1997evolution}}
 \end{quote}
 In cellular programming, local evolution of the CA rule makes use of a
-local ``fitness'' (\cite[pp. 79--81]{sipper1997evolution}), as the
+``fitness'' metric (\cite[pp. 79--81]{sipper1997evolution}), as the
 systems are evolved to perform certain global computational tasks.
+%
+In the current effort system evolution is not directly guided by a
+specific fitness criterion.
+%
+This paper defers any detailed \emph{post hoc} analysis of MetaCA
+behaviour, although we hope to explore this further in a sequel,
+possibly following in the footsteps of the EvCA project
+\cite{goerg2012licors,goerg2012mixed,hordijk2001upper}.
 
-In the current effort, although we are interested in behaviour that
-tends towards edge-of-chaos effects, system evolution is not directly
-guided by a specific fitness criterion, but only by variations on the
-``crossover'' mechanism.
+\subsection{Modelling social dynamics}
 
-One early application of cellular programming was to evolutionary game
-theory, a field with natural parallels
-(cf.~\cite{nowak1992evolutionary}).  We will not consider game
-theoretic approaches in this work, despite being inspired by the
-social metaphors that are involved (e.g.~\cite{nowak2006five}).  In
-our thinking we often switch between conceptual/symbolic,
-social/ethical, biological/genetic, and physical/geometric metaphors.
+Previous researchers have looked at CAs ``as multi-agent systems based
+on locality with overlapping interaction structures''
+\cite{flache2001irregular}.  An early application of cellular
+programming was to evolutionary game theory, a field with natural
+parallels (cf.~\cite{nowak1992evolutionary}).  We are inspired by
+recent work in this area on the evolution and failures of cooperation
+\cite{axelrod-evolution,nowak2006five,stewart2013extortion,stewart2014collapse}
+but we do not use a game theoretic approach.
+%
+George Mead extends the term \emph{social} to describe any scenario
+exhibiting emergent coevolution; this becomes central to our discussion.
 
-In this connection it is worth mentioning some recent work
-\cite{goerg2012licors,goerg2012mixed} that continues in the earlier
-tradition of the EvCA project (cf. \cite{hordijk2001upper}), making
-use of a relativistic ``light cone'' analysis to identify structure in
-CAs.  The current paper does not pursue any detailed \emph{post hoc}
-analysis of CA behaviour, although we plan to explore this further in
-subsequent work.  Finally, although not focusing on CAs per se,
-\cite{hofstadter1995prolegomena} outlines a set of criteria for the
-design of systems that exhibit ``emergent'' intelligence which helped
-to motivate the present effort.
-
+\begin{quote}
+\emph{What is peculiar to intelligence is that it is a change that
+  involves a mutual reorganization, an adjustment in the organism and
+  a reconstitution of the environment; for at its lowest terms any
+  change in the organism carries with it a difference of sensitivity
+  and response and a corresponding difference in the environment.} \ldots
+%
+%% \emph{The social nature of the present arises out of its emergence. I
+%%   am referring to the process of readjustment that emergence
+%%   involves. Nature takes on new characters, for example with the
+%%   appearance of life, or the stellar system takes on new characters
+%%   with the loss of mass by the collapse of atoms through the processes
+%%   that go on within a star. There is an adjustment to this new
+%%   situation. The new objects enter into relationship with the old. The
+%%   determining conditions of passage set the conditions under which
+%%   they survive, and the old objects enter into new relations with what
+%%   has arisen. I am here using the term ``social'' with reference not
+%%   to the new system, but to the process of readjustment.}
+%
+\emph{Now what we are accustomed to call social is only a so-called
+consciousness of such a process, but the process is not identical
+   with the consciousness of it, for that is an awareness of the
+   situation. The social situation must be there if there is to be
+   consciousness of it.}
+\sourceatright{\cite[pp. 4, 48]{mead1932philosophy}}
+%  Now it is clear that such a social character
+%  can belong only to the moment at which emergence takes place, that
+%  is to a present.
+\end{quote}
+%
+% \cite{hofstadter1995prolegomena} outlines a set of criteria for the
+% design of systems that exhibit ``emergent'' intelligence which helped
+% to motivate the present effort.
 
 \subsection{Conceptual Blending} \label{sec:blend}
 
@@ -162,11 +224,11 @@ are involved with a research project that studies computational
 blending \cite{schorlemmer2014coinvent}, and cellular automata seem to
 offer a very simple example of blending behaviour.  That is, they
 consider the value of neighbouring cells, and produce a result that
-``combines'' these results (in some suitably abstract sense) in order
+``combines'' these values (in some suitably abstract sense) in order
 to produce the next generation.  We were also inspired by the idea of
 ``blending'' ordered and chaotic behaviour to produce edge-of-chaos
 effects.
-
+%
 We propose to exploit existing formalisms of blending (in the style of
 Goguen \cite{gog05}) in the context of cellular automata to
 investigate emergent and novel behaviours.  The fundamental building
@@ -187,17 +249,18 @@ refine the blend:
 \item[Refinement] Given a blend which represents a concept which is in some way incomplete, it is possible to refine the concept by adding symbols or axioms.
 \end{description}
 
-This paper presents several examples of simple concepts to which the
-blending process applies. In general the notion of a signature
-morphism allows input concepts expressed in different languages to be
-blended. In this paper the examples shown have input concepts
-expressed in the same language, and indeed have the same
-specification. This means that the morphisms are not interesting and
-the calculated pushout could be computed without utilising the full
-machinery of category theory.  Planned extensions will explore the
-idea of combining rules for cellular automata which may have entirely
-different techniques for expressing propagation.  For this reason, we
-target the Heterogeneous Tool Set (HETS) system
+%% This paper presents several examples of simple concepts to which the
+%% blending process applies.  In general the notion of a signature
+%% morphism allows input concepts expressed in different languages to be
+%% blended.  
+In this paper the primary examples have input concepts expressed in
+the same language, and indeed have the same specification.  This means
+that the morphisms are not interesting and the calculated pushout
+could be computed without utilising the full machinery of category
+theory.  Planned extensions will explore the idea of combining rules
+for cellular automata which may have entirely different techniques for
+expressing propagation (and we provide one example).  For this reason,
+we target the Heterogeneous Tool Set (HETS) system
 \cite{mossakowski2007heterogeneous} as an infrastructure for computing
 blends.  We describe our current approach to blending in the context
 of cellular automata in Sections \ref{introducing-blending} and
@@ -211,36 +274,16 @@ of cellular automata in Sections \ref{introducing-blending} and
 %%%% section header?
 \subsection{Generating Genotypes} \label{sec:geno}
 
-Each elementary CA rule defines a mapping from all eight strings of
-0's and 1's to the set \{0,1\}.  Thus, for example the rule \textbf{01010100}
-is defined as the following operation:
-\begin{lstlisting}[mathescape]
-0 0 0 $\mapsto$ $\mathbf{0}$
-0 0 1 $\mapsto$ $\mathbf{1}$
-0 1 0 $\mapsto$ $\mathbf{0}$
-0 1 1 $\mapsto$ $\mathbf{1}$
-1 0 0 $\mapsto$ $\mathbf{0}$
-1 0 1 $\mapsto$ $\mathbf{1}$
-1 1 0 $\mapsto$ $\mathbf{0}$
-1 1 1 $\mapsto$ $\mathbf{0}$
-\end{lstlisting}
-%  $\text{\emph{Rule 84}}$ 
-%  ... Must double check the example, since I had a mistake in the truth table
-
-There are 256 of these rules; the example above is Rule 84 in
-Wolfram's standard enumeration of 1D CAs \cite{wolfram1994cellular}.
-The basic concept of the MetaCA is to evolve a CA with 256 possible
-states -- rather than the traditional two -- where each state now
-corresponds to a ``CA rule''.  Then we can then apply this rule to
-decide the output for the next cell, depending also on the state of
-the neighbouring cells.  By positioning three CA rules next to each
+A MetaCA evolves a CA with 256 possible
+states -- rather than the traditional \boxed{0\mystrut} and \boxed{1\mystrut} -- where each state now
+corresponds to a ``1D CA rule''.  By positioning three CA rules next to each
 other, we define a multiplication by applying the central rule bitwise
 across the alleles.
 %
 For example, here is the result of ``multiplying'' $01101110\times
 01010100\times 01010101$.  In the context of such an operation, we
-refer to the central term as the ``local rule,'' and we highlight it
-in bold below.
+refer to the central term as the ``local rule.'' 
+This example uses Rule 84 as the local rule, highlighted in bold.
 
 \lstset{
   xleftmargin=.1\columnwidth, xrightmargin=.01\columnwidth
@@ -248,7 +291,7 @@ in bold below.
 
 \begin{lstlisting}[mathescape]
 0 $\mathbf{0}$ 0     $0$     $\text{\emph{Apply local rule to ``000''}}$
-1 $\mathbf{1}$ 1     $0$     $\text{\emph{Apply local rule to ``111}}$
+1 $\mathbf{1}$ 1     $0$     $\text{\emph{Apply local rule to ``111''}}$
 1 $\mathbf{0}$ 0     $0$     $\text{\emph{Apply local rule to ``100''}}$
 0 $\mathbf{1}$ 1  $\droparrow$   $1$     $\text{\emph{Apply local rule to ``011''}}$
 1 $\mathbf{0}$ 0     $0$     $\text{\emph{Apply local rule to ``100''}}$
@@ -263,7 +306,7 @@ early and do not produce any interesting patterns (Figure
 \ref{barcode}).
 
 \begin{figure}
-\includegraphics[width=\columnwidth,trim = 135mm 177mm 0mm 0mm,clip=true]{paint-drips.png}
+\includegraphics[width=\columnwidth]{paint-drips2.png}
 \caption{Under evolution according to the local rule without blending
   dynamics, a barcode-like stable pattern forms
   quickly\label{barcode}}
@@ -301,11 +344,10 @@ system by introducing CASL files to represent the 8 bit encodings
 (Listing \ref{CASL-listing}, and corresponding development graph shown
 in Figure \ref{fig:hetsblend}).
 %
-
-The computed blend is inconsistent as there is not a unique value
-representing the output value of each function.  In order to resolve
-this we weaken the input rules in CASL by removing the function values
-which cause conflict. 
+In this example, the first computed blend is inconsistent as there is
+not a unique value representing the output value of each function.  In
+order to resolve this, we weaken the input rules in CASL by removing
+the function values which cause conflict.
 %
 Note that purposes of efficiency, we have implemented our 1D
 experiments in LISP rather than in \mbox{HETS}/\mbox{CASL}.  We've put
@@ -313,7 +355,7 @@ the working code on
 Github\footnote{\url{https://github.com/holtzermann17/metaca}}.
 
 \begin{figure}[!ht]
-\includegraphics[width=0.45\textwidth]{dol_dev.pdf}
+\includegraphics[width=0.5\textwidth]{dol_dev.pdf}
 \caption{The development graph for calculating a blend of 8 bit encodings\label{fig:hetsblend}}
 \end{figure}
 
@@ -430,9 +472,9 @@ phenotype evolves by applying the local rule $\beta$ to the data
 
 In the phenotype layer, we see a few bands with interesting patterns,
 where the MetaCA at left has stabilised locally into one of the more
-interesting CA rules.  However, the long term evolution is not
-particularly interesting: the structure observed in Figure
-\ref{metaca-taster} disappears quickly.
+interesting CA rules.  However, at this scale we see that the long
+term evolution in the genotype layer is uninteresting: the structure
+observed in Figure \ref{metaca-taster} disappears quickly.
 
 We therefore decided to introduce random mutations to the genotype,
 illustrated in Figures \ref{random-mutation}--\ref{seti}.  With a high
@@ -519,7 +561,7 @@ Finally some structure starts to appear in the clustering:
  \includegraphics[width=0.45\textwidth]{300002d.jpg}
  \end{center}
 The propagation that follows shows a population of cells which grows
-slowly overtime. The majority of the members have low weight
+slowly over time. The majority of the members have low weight
 (represented by black squares), but interspersed within the population
 are chains of squares with high weight (represented by red squares)
 adjacent to dead cells (white).
@@ -554,7 +596,7 @@ Then we see a less steady but more active growth, with populations moving in tri
  \begin{center}
  \includegraphics[width=0.45\textwidth]{init2daverage++.jpg}
  \end{center}
-\noindent the quickly-moving populations do not have a convergent weight characteristic of the phenotype, as in the case with the union blend for the same initial conditions. 
+\noindent The quickly-moving populations do not have a convergent weight characteristic in their phenotypes, as in the case with the union blend for the same initial conditions. 
 
 
 %%intro intersec, average, and inhertiance criteria
@@ -576,8 +618,7 @@ Then we see a less steady but more active growth, with populations moving in tri
 \>\> \Id{bitop}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
 \KW{end}\\
 \\
-\%\% How to calculate a blend given three 8-bit genotypes\\
-\SPEC \=\SIdIndex{METACABitcalc} \Ax{=}\\
+\SPEC \=\SIdIndex{METACABitcalc} \Ax{=} \KW{\%} Calculate a blend given three 8-bit genotypes\\
 \> \SId{METACABitencoding}\\
 \THEN \=\OP \=\Id{blend}\Ax{\_\_}\Ax{\_\_} \Ax{:} \=\Id{Triple} \Ax{\times} \Id{Triple} \Ax{\rightarrow} \Id{Bit}\\
 \> \Ax{\forall} \=\Id{t1}, \Id{t2}, \Id{t3} \Ax{:} \Id{Triple} \\
@@ -621,24 +662,20 @@ Then we see a less steady but more active growth, with populations moving in tri
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{0}\\
 \KW{end}\\
 \\
-\%\% Generic is common between left and right\\
-\SPEC \=\SIdIndex{Generic} \Ax{=}\\
+\SPEC \=\SIdIndex{Generic} \Ax{=} \KW{\%} Common between left and right\\
 \> \SId{METACABitencoding}\\
 \THEN \=\Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{0}) \Ax{=} \Ax{0}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{0}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \KW{end}\\
 \\
-\%\% Morphism from Generic to Left\\
-\VIEW \=\SId{Left} \Ax{:} \=\SId{Generic} \KW{to} \SId{LeftRule}\\
+\VIEW \=\SId{Left} \Ax{:} \=\SId{Generic} \KW{to} \SId{LeftRule} \KW{\%} Morphism from Generic to Left\\
 \KW{end}\\
 \\
-\%\% Morphism from Generic to Right\\
-\VIEW \=\SId{Right} \Ax{:} \=\SId{Generic} \KW{to} \SId{RightRule}\\
+\VIEW \=\SId{Right} \Ax{:} \=\SId{Generic} \KW{to} \SId{RightRule} \KW{\%} Morphism from Generic to Right\\
 \KW{end}\\
 \\
-\%\% This will be inconsistent\\
-\SPEC \=\SIdIndex{Blend} \Ax{=}\\
+\SPEC \=\SIdIndex{Blend} \Ax{=} \KW{\%} This will be inconsistent\\
 \> \KW{combine} \=\Id{Left}, \Id{Right}\\
 \KW{end}\\
 \\
@@ -660,13 +697,14 @@ Then we see a less steady but more active growth, with populations moving in tri
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{0}, \Ax{1}) \Ax{=} \Ax{1}\\
 \> \Ax{\bullet} \=\Id{bitop} \Id{t}(\=\Ax{1}, \Ax{1}, \Ax{1}) \Ax{=} \Ax{1}\\
 \KW{end}\\
+\\
 \VIEW \=\SId{WeakenedLeft} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedLeftRule}\\
 \KW{end}\\
+\\
 \VIEW \=\SId{WeakenedRight} \Ax{:} \=\SId{Generic} \KW{to} \SId{WeakenedRightRule}\\
 \KW{end}\\
 \\
-\%\% A computed blend as new 8 bit encoding\\
-\SPEC \=\SIdIndex{ConsistentBlend} \Ax{=}\\
+\SPEC \=\SIdIndex{ConsistentBlend} \Ax{=} \KW{\%} A consistent blend as new 8 bit encoding\\
 \> \KW{combine} \=\Id{WeakenedLeft}, \Id{WeakenedRight}\\
 \AND \SId{METACABitcalc}\\
 \AND \SId{LocalRule}\\
@@ -678,10 +716,12 @@ Then we see a less steady but more active growth, with populations moving in tri
 
 \newpage
 \begin{figure}[H]
-\includegraphics[width=0.4\textwidth]{2dblend.pdf}
+\includegraphics[width=0.5\textwidth]{2dblend.pdf}
+\vspace{-.4in}
 \caption{Blending different 2d genotypes}
 \label{fig:2dblend}
 \end{figure}
+\vspace{-.2in}
 
 \begin{listing}[H]
 {\scriptsize
@@ -702,7 +742,7 @@ Then we see a less steady but more active growth, with populations moving in tri
 \KW{end}\\
 \\
 \\
-{{}\KW{\%\%} a 2\Ax{-}d cellular automaton with numerical Genotype}\\
+{{}\KW{\%} a 2\Ax{-}d cellular automaton with numerical Genotype}\\
 \SPEC \=\SIdIndex{Numericalencoding} \Ax{=}\\
 \> \SId{Nat}\\
 \THEN \=\SORT \Id{NGenotype}\\
@@ -716,7 +756,7 @@ Then we see a less steady but more active growth, with populations moving in tri
 \KW{end}\\
 \\
 \\
-{{}\KW{\%\%} A colour CA Genotype}\\
+{{}\KW{\%} A colour CA Genotype}\\
 \SPEC \=\SIdIndex{Colourencoding} \Ax{=}\\
 \> \SId{Colour}\\
 \THEN \=\SORT \=\Id{CGenotype} \Ax{=} \Id{Colour}\\
@@ -726,7 +766,7 @@ Then we see a less steady but more active growth, with populations moving in tri
 \KW{end}\\
 \\
 \\
-{{}\KW{\%\%} A generic space}\\
+{{}\KW{\%} A generic space}\\
 \SPEC \=\SIdIndex{Genencoding} \Ax{=}\\
 \> \SORT \Id{S}\\
 \> \SORT \Id{Genotype}\\
@@ -734,14 +774,14 @@ Then we see a less steady but more active growth, with populations moving in tri
 \KW{end}\\
 \\
 \\
-{{}\KW{\%\%} A signature morphism from Generic to Numerical}\\
+{{}\KW{\%} A signature morphism from Generic to Numerical}\\
 \VIEW \=\SId{NumericalSM} \Ax{:} \\
 \> \SId{Genencoding} \KW{to} \SId{Numericalencoding} \Ax{=} \\
 \> \Id{S} \Ax{\mapsto} \Id{Nat}, \Id{Genotype} \Ax{\mapsto} \Id{NGenotype}, \=\Id{blend} \Ax{\mapsto} \Id{numblend}\\
 \KW{end}\\
 \\
 \\
-{{}\KW{\%\%} A signature morphism from Generic to Colour}\\
+{{}\KW{\%} A signature morphism from Generic to Colour}\\
 \VIEW \=\SId{ColourSM} \Ax{:} \\
 \> \SId{Genencoding} \KW{to} \SId{Colourencoding} \Ax{=} \\
 \> \Id{S} \Ax{\mapsto} \Id{Colour}, \Id{Genotype} \Ax{\mapsto} \Id{CGenotype}, \=\Id{blend} \Ax{\mapsto} \Id{hueblend}\\
@@ -783,7 +823,7 @@ dimensional cellular automata are
 The primary limitation of this work is that our results are purely
 observational at present.  For example, the early experiments seemed
 to provide visual evidence that blending is useful: Figure
-\ref{metaca-taster} more interesting than Figure \ref{barcode}.  The
+\ref{metaca-taster} is more interesting than Figure \ref{barcode}.  The
 robustness of our qualitative findings have been supported by
 developing a range of different experiments, for example, some analogy
 could be drawn between the ``grey areas'' observed in Figure
@@ -792,7 +832,7 @@ in the 2D case under union blending.
 
 Our results confirm the basic finding of CA research: interesting
 global behaviour can arise from simple rules governing local
-interactions, with the added twist the rules can also arise locally.
+interactions, with the added twist that these rules can also arise locally.
 The MetaCA setting seems to offer fertile ground for further
 computational research into evolutionary and co-evolutionary effects.
 
@@ -810,11 +850,11 @@ structure and determine the growth of the group of individuals.
 
 In a fundamental respect our blending rules seem to embody a
 thought-provoking blend of two very different kinds of ``ethics.''
-Specifically: blending seems to introduce a dynamic similar to Carol
+Specifically, blending seems to introduce a dynamic similar to Carol
 Gilligan's \emph{ethic of care} \cite{gilligan1982different}, which
 seeks to defend the relationships that obtain in a given situation.
 Here this is manifested by the question ``Have my neighbours already
-formed a consensus?''  This behaviour augments and extends the local
+formed a consensus?''  This behaviour complements the local
 rule, which would correspond to Lawrence Kohlberg’s \emph{ethic of
   justice} (cf. \cite{benhabib1985generalized}).
 
@@ -826,7 +866,7 @@ negentropic role (\emph{apr\`es} Bergson \cite{bergson1912creative}).
 One strategy that has not been developed here would be to make use of
 a ``Baldwin effect'' \cite{baldwin-effect,weber2003evolution}, to use
 ``learning'' (considered as entropy) in the phenotype layer to drive
-evolution.  More specifically,
+(co)evolution.  More specifically,
 \boxed{0\mystrut}\boxed{0\mystrut}\boxed{0\mystrut} $\mapsto$
 \boxed{0\mystrut} and
 \boxed{1\mystrut}\boxed{1\mystrut}\boxed{1\mystrut} $\mapsto$
@@ -838,10 +878,10 @@ ways to select against them?
 \subsection{Planned extensions}
 
 One observes that under our blending rule, the two non-entropic
-behaviours listed above tend to selected for, not against, because
-they are examples of the ``neighbours match'' condition.  Indeed,
-reviewing the essential features of blending in the 1D case, we can
-use our basic principles:
+behaviours listed above are actually selected for, not against,
+because they are examples of the ``neighbours match'' condition.
+Indeed, reviewing the essential features of blending in the 1D case,
+we can use our basic principles:
 
 \begin{quote}
 ``\emph{If neighbours match:} \emph{use their shared value as the result.}\\
@@ -886,7 +926,7 @@ half, determined by a ``censored'' version of Rule 23.
 \end{lstlisting}
 
 Rather than using Censored Rule 23 as our template, we could instead
-have the template determined by phenotype data, thereby inserting the
+have the template determined by phenotype data, thereby involving the
 phenotype as a ``hidden layer'' in the computation.
 
 The standard template could be understood to be generated by locking in
@@ -903,11 +943,11 @@ along with a ``variation''\footnote{%
 %%
 \boxed{0\mystrut}\boxed{1\mystrut}\boxed{0\mystrut} $\mapsto$
 \boxed{0\mystrut} and the bitwise inverses of these.  A wider class of
-templates could calculated from arbitrary phenotype data by the same
+templates could be calculated from arbitrary phenotype data by the same
 operations.  What we would lose in abandoning the intuition associated
 with local blending, we may be repaid through a much more abstract
 but richer procedural blend, operating at the level of
-genotype+phenotype evolution.  At the very least, we can point to a
+genotype+phenotype coevolution.  At the very least, we can point to a
 generic space, namely the locked-in local rule which would be carried
 over (along with its variants) from the phenotype to the corresponding
 alleles.
@@ -932,14 +972,14 @@ project.  The MetaCA domain may help to show how to systematise some
 aspects of the search for the principles and techniques that underlie
 broader computational intelligence.
 
-Expanding on the relatively simple domain of CAs, we would like to use
+Expanding on the semantically simple domain of CAs, we would like to use
 HETS to formalise the mechanisms of social knowledge sharing and
-problem solving in fields like mathematics.  Indeed it may be possible
-in the future to encode mathematical problems in a MetaCA or cellular
-program and see how a group of agents can solve the problems as a
-society.  This would be informed by ongoing empirical analysis of real
-problem-solving activities \cite{eca} developed in parallel to the
-simulation work presented here.
+problem solving in fields like mathematics.  It may be possible to
+encode mathematical problems in a MetaCA or cellular program and
+involve a group of agents in finding solutions to these problems as a
+society, in an emergent manner.  This would be informed by ongoing
+empirical analysis of real problem-solving activities \cite{eca}
+developed in parallel to the simulation work presented here.
 
 \section{Conclusion}
 % Some of the relevant references are below.
@@ -972,9 +1012,11 @@ This research has been funded by the Future and Emerging Technologies
 (FET) programme within the Seventh Framework Programme for Research of
 the European Commission, under FET-Open Grant number 611553
 (COINVENT).
-
-We thank Timothy Teravainen, Raymond Puzio, and Cameron Smith for
-helpful conversations and pointers to literature.
+%
+We would like to thank Timothy Teravainen, Raymond Puzio, and Cameron Smith for
+helpful conversations and pointers to literature, and Christian
+Guckelsberger and an anonymous reviewer for comments that improved the
+draft.
 
 \bibliography{metaca}
 
