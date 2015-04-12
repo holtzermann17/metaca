@@ -1,0 +1,44 @@
+\begin{frame}[noframenumbering,plain]%{\phantom{title page}} 
+
+\begin{tikzpicture}[remember picture,overlay]
+    \node[yshift=-.3cm,at=(current page.center),opacity=0.2] (bg) {
+        \includegraphics[height=1.1\paperheight]{text-format.png}
+    };
+\end{tikzpicture}
+
+\begin{tikzpicture}[remember picture,overlay]
+    \node[xshift=-1.5cm, yshift=1.5cm,at=(current page.south east)] (logo) {
+        \includegraphics[width=1in]{coinvent_300}
+    };
+\end{tikzpicture}
+
+\begin{center}
+
+	\begin{tikzpicture}%[show background grid] %% Use grid for positioning, then turn off
+	\node[inner sep=0pt,above right,text width=3in,text=gray] (title) 
+			{ {\huge The Search for Computational\\ Intelligence\par} };
+		% \node (title) at (1.5,1.5) {};
+	\end{tikzpicture}
+	\quad
+
+	% \includegraphics[width=7cm]{\titleimage} 
+	
+	\vspace{1em}
+	\footnotesize\textcolor{gray}{Social Aspects of Cognition and Computing Symposium, AISB 2015
+	%\texttt{[arXiv:1234.5678]}
+}
+	\vspace{.9em}
+	
+	\raisebox{.0cm}{\fontspec{URW Chancery L}\huge\textcolor{purple}{Joseph Corneli \& Ewen Maclean}} \\
+	% \includegraphics[height=1cm]{FlipSansSerif} \quad
+	\raisebox{.2cm}{\includegraphics[height=.9cm]{GU}} \quad
+	\includegraphics[height=1.6cm]{University_of_Edinburgh_logo.png}\\
+	% \footnotesize\textcolor{gray}{In collaboration with} Csaba Cs\'aki\textcolor{gray}{,} Yuval Grossman\textcolor{gray}{, and} Yuhsin Tsai\normalsize\\
+
+	\vspace{.9em}
+	\textcolor{normal text.fg!50!Comment}{\textcolor{aquamarine}{\bf \textit{University of Kent, Tuesday, April 21\textsuperscript{st} 1100}}}
+	% \textcolor{Comment}{ \;($\pi$ day)}\\
+	% \Comment{4 February 2011}
+\end{center}
+\end{frame}
+

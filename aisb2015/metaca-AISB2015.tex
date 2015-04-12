@@ -7,7 +7,8 @@
 
 
 \lstset{
-  xleftmargin=.35\columnwidth, xrightmargin=.35\columnwidth
+   xleftmargin=.35\columnwidth, xrightmargin=.35\columnwidth,
+   mathescape=true,
 }
 
 \usepackage{times}
@@ -86,7 +87,7 @@ cellular automata (CA), following on the global approach of
 \end{quote}
 
 PICARD's inferred rule is derived from the current state of the CA by
-a global characteristics, such as the number of 1's in the CA's
+a global characteristic such as the number of 1's in the CA's
 current state (modulo 256), or the density $\rho$ of 1's (normalised
 as $\rho/256$).  These global criteria are similar to Van Valen's
 theory of resource density as an ``incompressible gel'' \cite{van1973new}.
@@ -108,7 +109,7 @@ evolve locally, according to globally-defined dynamics.
 
 \subsection{Cellular Automata}
 
-Each elementary 1D CA rule defines a mapping from all eight strings of
+Each elementary 1D CA rule defines a mapping from all eight triples formed of
 0's and 1's to the set \{0,1\}.  Thus, for example the rule \textbf{01010100}
 is defined as the following operation:
 \begin{lstlisting}[mathescape]
@@ -425,7 +426,7 @@ such a way as the minimise the lowest bound and maximise the highest
 bound, and maximise the interval for reproduction.  Given two
 genotypes $(x_1, y_1, z_1)$ and $(x_2, y_2, z_2)$, the blend is
 $(\mathrm{min} \{x_1,x_2\}, \mathrm{max} \{y_1,y_2\}, \mathrm{max}
-\{z_1,z_2\})$
+\{z_1,z_2\})$:
 \begin{center}
 \includegraphics[width=0.45\textwidth]{2dgenotypeblend.pdf}
 \end{center}
@@ -915,14 +916,14 @@ local logic on half of the cases, and moreover it always the same
 half, determined by a ``censored'' version of Rule 23.
 
 \begin{lstlisting}[mathescape]
-0 0 0 $\mapsto$ 0    $\text{\emph{Neighbours match}}$
-0 0 1 $\mapsto$ *    $\text{\emph{Local logic}}$
-0 1 0 $\mapsto$ 0    $\text{\emph{Neighbours match}}$
-0 1 1 $\mapsto$ *    $\text{\emph{Local logic}}$
-1 0 0 $\mapsto$ *    $\text{\emph{Local logic}}$
-1 0 1 $\mapsto$ 1    $\text{\emph{Neighbours match}}$
-1 1 0 $\mapsto$ *    $\text{\emph{Local logic}}$
-1 1 1 $\mapsto$ 1    $\text{\emph{Neighbours match}}$
+0 * 0 $\mapsto$ 0    $\text{\emph{Neighbours match}}$
+0 * 1 $\mapsto$ *    $\text{\emph{Local logic}}$
+0 * 0 $\mapsto$ 0    $\text{\emph{Neighbours match}}$
+0 * 1 $\mapsto$ *    $\text{\emph{Local logic}}$
+1 * 0 $\mapsto$ *    $\text{\emph{Local logic}}$
+1 * 1 $\mapsto$ 1    $\text{\emph{Neighbours match}}$
+1 * 0 $\mapsto$ *    $\text{\emph{Local logic}}$
+1 * 1 $\mapsto$ 1    $\text{\emph{Neighbours match}}$
 \end{lstlisting}
 
 Rather than using Censored Rule 23 as our template, we could instead
