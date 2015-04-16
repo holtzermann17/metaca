@@ -247,51 +247,40 @@ Intuition: the number of 0's and 1's in the genotype should be approximately equ
 \part{2D experiments}
 \frame{\partpage}
 
-
-\begin{frame}{Extending blending to 2-d CAs}{}
+\begin{frame}{}{}
+\vspace*{-1cm}
 \begin{center}
-\item{Extend the notion of genotype and phenotype to 2-d}
-\item{Conway's rule:}
+\item{Conway's {\fontspec{Bookhands}Game\bsp of\bsp Life} rule:}\vspace*{.1cm}
 \includegraphics[width=.9\textwidth]{conway.pdf}
-\item{Generalised rule (genotype):}
+\item{
+\begin{fminipage}{7cm}
+\begin{tabular}{cc}
+\# alive neighbours & new state\\
+3  & alive\\
+4  & same\\
+>4 & dead\\
+<3 & dead\\
+\end{tabular}
+\end{fminipage}
+}
+\item{Generalised (local) rule (i.e.~``genotype''):}\vspace*{.1cm}
   \includegraphics[width=.9\textwidth]{2dgenotype.pdf}
-\item{Blend genotypes with neighbours:}
+\begin{fminipage}{8.2cm}
+$x\leq\sum \textit{weight\ of\ neighbours}<y\Rightarrow\textit{alive}$\newline
+$y\leq\sum \textit{weight\ of\ neighbours}<z\Rightarrow\textit{same}$
+\end{fminipage}
+a cell's $\textit{weight}$ is its ``phenotype''.
+\end{center}
+\end{frame}
+
+\begin{frame}{Extending blending to 2D CAs}{Example: \emph{union blend} selects largest ``reproduce'' window}
+\begin{center}
 \includegraphics[width=.9\textwidth]{2dgenotypeblend.pdf}
 \end{center}
 \end{frame}
 
-\begin{frame}{Extending blending to 2-d CAs}{}
-\begin{center}
-\item{Extend the notion of genotype and phenotype to 2-d}
-\item{Conway's rule:}
-\includegraphics[width=.9\textwidth]{conway.pdf}
-\item{Generalised rule:}
-  \includegraphics[width=.9\textwidth]{2dgenotype.pdf}
-\item{Can consider the distribution of numbers here $\{x,y,z\}$ to be a {\em genotype}}
-\item{Also add a weight to each cell represented by a colour can consider this a {\em phenotype}}
-\end{center}
-\end{frame}
-
-
-
-\begin{frame}{Extending blending to 2-d CAs}{}
-\begin{center}
-\item{Blend genotypes with neighbours:}
-\includegraphics[width=.9\textwidth]{2dgenotypeblend.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}{Embed arbitrary theories in cells}{}
-\begin{center}
-\item{We can envisage embedding arbitrary concepts in each cell}
-\item{Use blending for propagation}
-\item{Need to define the genotype and phenotype of a concept}
-\item{2-d CA then gives a dynamic graphical representation of evolution of a concept via blending}
-\item{``Good concepts'' contribute heavily and survive -- ``Bad concepts'' die out and do not contribute}
-\end{center}
-\end{frame}
-
-\begin{frame}{A demo would be great here}{}
+\begin{frame}{Results}{}
+{\footnotesize ``Compute the union blend for any living cell, and all neighbours; new weight is average of living neighbours, including self.''}
 \begin{center}
 \includegraphics[width=.9\textwidth]{300002d.jpg}
 \end{center}
@@ -300,8 +289,8 @@ Intuition: the number of 0's and 1's in the genotype should be approximately equ
 \part{Discussion}
 \frame{\partpage}
 
-\begin{frame}{An extended view on the social}{}
-{\small The social nature of the present arises out of its emergence.
+\begin{frame}{An extended view on the social}{Social $\Leftrightarrow$ Emergent}
+{\small ``The social nature of the present arises out of its emergence.''
 % \emph{The philosophy of the present}
 %% I
    %% am referring to the process of readjustment that emergence
@@ -322,7 +311,7 @@ Intuition: the number of 0's and 1's in the genotype should be approximately equ
 
 % [A] gesture is a symbol of the result of the given social act of one organism (the organism making it) in so far as it is responded to by another organism (thereby also involved in that act) as indicating that result.
 
-Symbolization constitutes objects not constituted before, objects which would not exist except for the context of social relationships wherein symbolization occurs.
+``Symbolization constitutes objects not constituted before, objects which would not exist except for the context of social relationships wherein symbolization occurs.''
  % \emph{Mind, Self, and Society}
 } \qquad\qquad \raisebox{-.2cm}{\fontspec{Bookhands}George\bsp H.\bsp Mead}
 \end{frame}
@@ -347,17 +336,17 @@ to Lawrence Kohlberg's \emph{ethic of justice}.
 \end{columns}
 \end{frame}
 
-\begin{frame}{A philosophical view on life}{}
-{\small Regarded from this point of view, \emph{life is like a current passing from germ to germ through the medium of a developed organism}. It is as if the organism itself were only an excrescence, a bud caused to sprout by the former germ endeavoring to continue itself in a new germ. The essential thing is the \emph{continuous progress} indefinitely pursued, an invisible progress, on which each visible organism rides during the short interval of time given it to live.} \qquad\qquad \raisebox{-.2cm}{\fontspec{Bookhands}Henri\bsp Bergson}
+\begin{frame}{A philosophical view on life}{Transfer}
+{\small ``Regarded from this point of view, \emph{life is like a current passing from germ to germ through the medium of a developed organism}. It is as if the organism itself were only an excrescence, a bud caused to sprout by the former germ endeavoring to continue itself in a new germ. The essential thing is the \emph{continuous progress} indefinitely pursued, an invisible progress, on which each visible organism rides during the short interval of time given it to live.''} \qquad\qquad \raisebox{-.2cm}{\fontspec{Bookhands}Henri\bsp Bergson}
 \end{frame}
 
-\begin{frame}{A philosophical view on life, ctd.}{}
-Chemists have pointed out that even in the organic---not to go so far as the organized---science has reconstructed hitherto nothing but waste products of vital activity; the peculiarly active plastic substances obstinately defy synthesis.  One of the most notable naturalists of our time has insisted on the opposition of two orders of phenomena observed in living tissues, \emph{anagenesis} and \emph{katagenesis}. The r\^{o}le of the anagenetic energies is to raise the inferior energies to their own level by assimilating inorganic substances.\quad \raisebox{-.2cm}{\fontspec{Bookhands}Bergson}
+\begin{frame}{A philosophical view on life, ctd.}{Growth}
+``Chemists have pointed out that even in the organic---not to go so far as the organized---science has reconstructed hitherto nothing but waste products of vital activity; the peculiarly active plastic substances obstinately defy synthesis.  One of the most notable naturalists of our time has insisted on the opposition of two orders of phenomena observed in living tissues, \emph{anagenesis} and \emph{katagenesis}. The r\^{o}le of the anagenetic energies is to raise the inferior energies to their own level by assimilating inorganic substances.''\quad \raisebox{-.2cm}{\fontspec{Bookhands}Bergson}
 \end{frame}
 
-\begin{frame}{A philosophical view on life, concl.}{}
+\begin{frame}{A philosophical view on life, concl.}{Duration}
 %% To sum up, those who are concerned only with the functional activity of the living being are inclined to believe that physics and chemistry will give us the key to biological processes.  They have chiefly to do, as a fact, with phenomena that are \emph{repeated} continually in the living being, as in a chemical retort. This explains, in some measure, the mechanistic tendencies of physiology.  On the contrary, 
-Those whose attention is concentrated on the minute structure of living tissues, on their genesis and evolution, histologists and embryogenists on the one hand, naturalists on the other, are interested in the retort itself, not merely in its contents. They find that this retort creates its own form through a \emph{unique} series of acts that really constitute a \emph{history}. \quad \raisebox{-.2cm}{\fontspec{Bookhands}Bergson}
+``Those whose attention is concentrated on the minute structure of living tissues, on their genesis and evolution, histologists and embryogenists on the one hand, naturalists on the other, are interested in the retort itself, not merely in its contents. They find that this retort creates its own form through a \emph{unique} series of acts that really constitute a \emph{history}.''\quad \raisebox{-.2cm}{\fontspec{Bookhands}Bergson}
 % Thus, histologists, embryogenists, and naturalists believe far less readily than physiologists in the physico-chemical character of vital actions.
 \end{frame}
 
@@ -388,9 +377,22 @@ and phenotype $\mathcal{P}\in 2^3 [\oplus2^1]$ that will produce
 something interesting?} \\[.3cm]
 \vspace{.1in}
 {\small Does it help to notice that each allele of $g\in2^8$ can be viewed as
-a ``phenotype'', and reenvision our 1D MetaCAs as multi-dimensional?  Can {\fontspec{Bookhands}Game\bsp of\bsp Life} semantics help decide how many 1s and 0s to keep?}
+a ``phenotype'', and reenvision our 1D MetaCAs as multi-dimensional?  Can Game of Life semantics help decide how many 1s and 0s to keep?}
 \end{column}
 \begin{column}[T]{.1cm}
 \end{column}
 \end{columns}
+\end{frame}
+
+\begin{frame}{Thinking big picture}{Embed arbitrary theories in cells}
+{
+\begin{center}
+\item{We can envisage embedding anything in a cell}
+\item{(Define \emph{genotype} and \emph{phenotype} accordingly.)}
+\item{~}
+\item{Use concept blending for propagation}
+\item{~}
+\item{``Good concepts'' contribute heavily and survive}
+\item{``Bad concepts'' die out and do not contribute}
+\end{center}}
 \end{frame}
