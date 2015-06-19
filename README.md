@@ -14,6 +14,32 @@ including the recent work on PICARD by Theodore Pavlic et al.  The
 current work is the first example that I am aware of that evolves the
 evolutionary rule locally.
 
+In addition to these 1D examples, our paper (and slides) presented at
+AISB'15 consider 2D examples.  The code for those experiments is in
+[ewenmaclean/2dCA](https://github.com/ewenmaclean/2dCA).
+
+## Citation
+
+``` bibtex
+@inproceedings{corneli2015search,
+title={The Search for Computational Intelligence},
+author={Joseph Corneli and Ewen Maclean},
+year={2015},
+editor={Erden, Yasemin J. and Giovagnoli, Raffaela and Dodig-Crnkovic, Gordana},
+booktitle={Social Aspects of Cognition and Computing Symposium,
+Proc. Annual Convention of the Society for the Study
+of Artificial Intelligence and Simulation of
+Behaviour (SSAISB), University of Kent, Canterbury,
+UK, 20-22nd April 2015},
+url={http://www.cs.kent.ac.uk/events/2015/AISB2015/proceedings/socialComp/papers/SACCS-AISB2015_submission_6.pdf},
+abstract={We define and explore in simulation several rules for the
+local evolution of generative rules for 1D and 2D
+cellular automata. Our implementation uses
+strategies from conceptual blending. We discuss
+potential applications to modelling social
+dynamics.}}
+```
+
 ## *: See also
 
 - Douglas Hofstadter, "Prologemena to any future Metacat", in Fluid concepts and creative analogies, pp. 307 - 318, 1995
