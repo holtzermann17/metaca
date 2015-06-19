@@ -23,10 +23,7 @@ AISB'15 consider 2D examples.  The code for those experiments is in
 Corneli, J. and Maclean,
 E. 2015. [The search for computational intelligence](http://www.cs.kent.ac.uk/events/2015/AISB2015/proceedings/socialComp/papers/SACCS-AISB2015_submission_6.pdf). In:
 Erden, Yasemin J., Giovagnoli, Raffaela, and Dodig-Crnkovic, Gordana,
-eds., Social Aspects of Cognition and Computing Symposium,
-Proc. Annual Convention of the Society for the Study of Artificial
-Intelligence and Simulation of Behaviour (SSAISB), University of Kent,
-Canterbury, UK, 20-22nd April 2015.
+eds., _Social Aspects of Cognition and Computing Symposium, Proc. Annual Convention of the Society for the Study of Artificial Intelligence and Simulation of Behaviour (SSAISB), University of Kent, Canterbury, UK, 20-22nd April 2015_.
 
 ## *: See also
 
